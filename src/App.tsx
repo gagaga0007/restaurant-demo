@@ -1,103 +1,197 @@
-import './App.css'
-import { useEffect, useRef } from "react";
-import { Button, Space } from "antd";
+// import _ from "lodash";
+import { useEffect, useRef, useState } from "react";
+import { Button, Col, ColorPicker, Divider, Form, InputNumber, Row, Space, Typography, Upload } from "antd";
 import { fabric } from "fabric";
-import { PlusOutlined } from "@ant-design/icons";
-import { Transform } from "fabric/fabric-impl";
+import { CloseCircleOutlined, DeleteOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons";
+import { UploadChangeParam, UploadFile } from "antd/lib/upload";
+import { Color } from "antd/lib/color-picker";
+
+import './App.css';
 
 interface CanvasPropertiesProps {
   width: number,
   height: number
 }
 
-const deleteIcon = "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E"
-const deleteIconSize = 20
+interface ChangePropertiesProps {
+  fillColor: Color
+  strokeColor: Color
+  strokeWidth: string | number
+}
+
+enum SelectedEnum {
+  CREATE = 'create',
+  UPDATE = 'update',
+  CLEAR = 'clear',
+}
+
+const settingInitial: Partial<ChangePropertiesProps> = {
+  strokeWidth: 2
+}
+
+// const controlIconSize = 16
+
+const fillAlpha = 0.5
+const defaultRectR = 30, defaultRectG = 144, defaultRectB = 255
+const defaultCircle1R = 255, defaultCircle1G = 75, defaultCircle1B = 75
+const defaultCircle2R = 222, defaultCircle2G = 184, defaultCircle2B = 135
 
 function App() {
   const innerElement = useRef<HTMLDivElement>(null)
   const canvasElement = useRef<HTMLCanvasElement>(null)
-  const deleteImageElement = useRef<HTMLImageElement>()
 
   const canvasObj = useRef<fabric.Canvas | null>(null)
   const canvasProperties = useRef<CanvasPropertiesProps>({ width: 0, height: 0 })
 
-  const addBgImg = () => {
-    // const image = new fabric.Image({
-    //
-    // })
+  const [backgroundImage, setBackgroundImage] = useState("")
+  const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([])
+
+  const [settingForm] = Form.useForm()
+
+  const changeBgImg = (fileInfo?: UploadChangeParam<UploadFile>) => {
+    if (!fileInfo) {
+      setBackgroundImage("")
+    } else {
+      const file = fileInfo.file.originFileObj
+      // 转成 Base64
+      const reader = new FileReader()
+      reader.readAsDataURL(file as Blob)
+      reader.onload = () => {
+        // 盒子宽度
+        const innerWidth = innerElement.current!.getBoundingClientRect().width
+
+        // 通过 Image 对象获取图片宽高，并设置 canvas 宽高
+        const image = new Image()
+        image.src = reader.result as string
+        image.onload = () => {
+          const height = image.height * innerWidth / image.width
+          innerElement.current!.style.height = height + 'px'
+
+          canvasObj.current!.setHeight(height)
+          canvasElement.current!.height = height - 2
+          canvasElement.current!.width = innerWidth - 2
+
+          setBackgroundImage(reader.result as string)
+        }
+      }
+    }
   }
 
   const addDesk = () => {
+    const primaryColor = `rgb(${defaultRectR}, ${defaultRectG}, ${defaultRectB})`
+    const fillColor = `rgba(${defaultRectR}, ${defaultRectG}, ${defaultRectB}, ${fillAlpha})`
+
     const rect = new fabric.Rect({
       left: 100,
       top: 100,
-      fill: 'rgba(0, 0, 255, 0.05)',
+      fill: fillColor,
       width: 120,
       height: 70,
-      stroke: 'rgba(0, 0, 255, 0.7)',
+      stroke: primaryColor,
       strokeWidth: 2,
     });
 
-    // rect.fill = 'rgb(0, 0, 255)'
-
-    rect.onSelect = () => {
-      rect.fill = 'rgb(0, 0, 255)'
-      rect.stroke = undefined
-      rect.strokeWidth = 0
-      return false
-    }
-
-    canvasObj.current!.add(rect);
+    canvasObj.current!.add(rect)
   }
 
   const addChair = () => {
+    const primaryColor = `rgba(${defaultCircle1R}, ${defaultCircle1G}, ${defaultCircle1B})`
+    const fillColor = `rgba(${defaultCircle1R}, ${defaultCircle1G}, ${defaultCircle1B}, ${fillAlpha})`
+
     const arc = new fabric.Circle({
       radius: 20,
       startAngle: -180,
       endAngle: 0,
       left: 100,
       top: 100,
-      fill: 'rgba(255, 0, 0, 0.05)',
+      fill: fillColor,
       width: 40,
       height: 40,
-      stroke: 'rgba(255, 0, 0, 0.7)',
+      stroke: primaryColor,
       strokeWidth: 2,
     });
 
-    canvasObj.current!.add(arc);
+    canvasObj.current!.add(arc)
   }
 
   const addCircle = () => {
+    const primaryColor = `rgba(${defaultCircle2R}, ${defaultCircle2G}, ${defaultCircle2B})`
+
     const circle = new fabric.Circle({
       radius: 20,
       left: 100,
       top: 100,
-      fill: 'rgb(222, 184, 135)',
+      fill: primaryColor,
       width: 40,
       height: 40,
+      selectable: true,
+      stroke: primaryColor,
+      strokeWidth: 2,
     });
 
-    canvasObj.current!.add(circle);
+    canvasObj.current!.add(circle)
   }
 
-  const deleteObject = (_eventData: MouseEvent, transform: Transform) => {
-    const target = transform.target;
-    const canvas = target.canvas;
-    canvas!.remove(target);
-    canvas!.requestRenderAll();
+  const onSelectedObjectChange = (objects: fabric.Object[], _isDeselected: boolean, selectType: SelectedEnum) => {
+    if (objects.length === 0) return
+
+    // 设置选择的元素
+    switch (selectType) {
+      case SelectedEnum.CREATE:
+        setSelectedObjects([...objects])
+        break;
+      case SelectedEnum.UPDATE:
+        setSelectedObjects([...objects])
+        break;
+      case SelectedEnum.CLEAR:
+        setSelectedObjects([])
+        break;
+      default:
+        break;
+    }
+
+    // if (isDeselected) {
+    //   // TODO: 删除某个相同的元素
+    //   // ...
+    //   setSelectedObjects([])
+    // } else {
+    //   setSelectedObjects(list => [...list, ...objects])
+    // }
   }
 
-  const renderDeleteIcon = (ctx: CanvasRenderingContext2D, left: number, top: number, _styleOverride: never, fabricObject: fabric.Object) => {
-    ctx.save();
-    ctx.translate(left, top);
-    ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle!));
-    ctx.drawImage(deleteImageElement.current!, -deleteIconSize / 2, -deleteIconSize / 2, deleteIconSize, deleteIconSize);
-    ctx.restore();
+  const onChangeObjectProperties = (data: ChangePropertiesProps) => {
+    selectedObjects.forEach(v => {
+      if (data.fillColor) {
+        const { r, g, b, a } = data.fillColor.toRgb()
+        v.set('fill', `rgba(${r}, ${g}, ${b}, ${a})`)
+      }
+      if (data.strokeColor) {
+        const { r, g, b, a } = data.strokeColor.toRgb()
+        v.set('stroke', `rgba(${r}, ${g}, ${b}, ${a})`)
+      }
+      v.set('strokeWidth', Number(data.strokeWidth))
+      v.canvas?.renderAll()
+    })
+  }
+
+  const deleteObjects = () => {
+    selectedObjects.forEach(v => {
+      const canvas = v.canvas
+      canvas!.remove(v)
+      canvas!.requestRenderAll()
+    })
+    setSelectedObjects([])
   }
 
   const updateCanvasContext = (canvas: fabric.Canvas | null) => {
     canvasObj.current = canvas
   }
+
+  useEffect(() => {
+    if (selectedObjects.length === 0) {
+      settingForm.resetFields()
+    }
+  }, [selectedObjects, settingForm]);
 
   useEffect(() => {
     // 设置宽高
@@ -113,26 +207,24 @@ function App() {
 
     // 初始化
     const fabricCanvas = new fabric.Canvas(canvasElement.current);
+
+    // 监听选择元素 初始/更新/取消
+    fabricCanvas.on('selection:created', (e) => {
+      onSelectedObjectChange(e.selected ?? [], false, SelectedEnum.CREATE)
+    })
+
+    fabricCanvas.on('selection:updated', (e) => {
+      onSelectedObjectChange(e.selected ?? [], false, SelectedEnum.UPDATE)
+      //   // 先删再加
+      //   onSelectedObjectChange(e.deselected ?? [], true)
+      //   onSelectedObjectChange(e.selected ?? [], false)
+    })
+
+    fabricCanvas.on('selection:cleared', (e) => {
+      onSelectedObjectChange(e.deselected ?? [], true, SelectedEnum.CLEAR)
+    })
+
     updateCanvasContext(fabricCanvas);
-
-    // 增加控制栏
-    fabric.Object.prototype.controls.deleteControl = new fabric.Control({
-      x: 0.5,
-      y: -0.5,
-      offsetX: 0,
-      offsetY: 0,
-      cursorStyle: 'pointer',
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      mouseUpHandler: deleteObject,
-      render: renderDeleteIcon,
-      cornerSize: 24
-    });
-
-    // 删除图标
-    const deleteIconImg = new Image()
-    deleteIconImg.src = deleteIcon
-    deleteImageElement.current = deleteIconImg
 
     return () => {
       updateCanvasContext(null);
@@ -141,15 +233,49 @@ function App() {
   }, [])
 
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', padding: '12px 24px', boxSizing: 'border-box' }}>
+    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', padding: '12px 24px', boxSizing: 'border-box', overflowX: 'hidden' }}>
       <Space style={{ marginBottom: 12 }}>
-        <Button icon={<PlusOutlined />} onClick={addBgImg}>背景图</Button>
-        <Button icon={<PlusOutlined />} onClick={addDesk}>加桌子</Button>
-        <Button icon={<PlusOutlined />} onClick={addChair}>加椅子</Button>
-        <Button icon={<PlusOutlined />} onClick={addCircle}>加柱子</Button>
+        <Upload onChange={changeBgImg} fileList={[]} customRequest={() => {}}>
+          <Button icon={<UploadOutlined />} type="primary" ghost>背景图</Button>
+        </Upload>
+        <Button icon={<CloseCircleOutlined />} type="primary" ghost onClick={() => changeBgImg()}>取消背景</Button>
+        <Button icon={<PlusOutlined />} type="primary" ghost onClick={addDesk}>加桌子</Button>
+        <Button icon={<PlusOutlined />} type="primary" ghost onClick={addChair}>加椅子</Button>
+        <Button icon={<PlusOutlined />} type="primary" ghost onClick={addCircle}>加柱子</Button>
       </Space>
-      <div ref={innerElement} style={{ flex: 1, border: '1px solid #cccccc' }}>
-        <canvas ref={canvasElement}></canvas>
+
+      <div style={{ flex: 1, display: 'flex' }}>
+        <div ref={innerElement} style={{ flex: 1, border: '1px solid #cccccc', backgroundImage: `url(${backgroundImage})`, backgroundPosition: 'center', backgroundSize: 'contain', backgroundRepeat: 'no-repeat' }}>
+          <canvas ref={canvasElement}></canvas>
+        </div>
+
+        <div style={{ width: '20vw', padding: '0 24px 12px', boxSizing: 'border-box' }}>
+          {selectedObjects.length > 0 ?
+            <>
+              <Typography.Title level={3} style={{ margin: 0 }}>操作</Typography.Title>
+              <Divider />
+              <Form form={settingForm} layout="vertical" onFinish={onChangeObjectProperties} initialValues={settingInitial}>
+                <Row>
+                  <Col span={12}>
+                    <Form.Item name="strokeColor" label="边框颜色">
+                      <ColorPicker format="rgb" />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="fillColor" label="填充颜色">
+                      <ColorPicker format="rgb" />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Form.Item name="strokeWidth" label="边框宽度">
+                  <InputNumber min={0} max={10} step={1} formatter={(value) => Math.floor(value ?? 0) + ''} style={{ width: '100%' }} />
+                </Form.Item>
+                <Button type="primary" block htmlType="submit">确认</Button>
+              </Form>
+              <Button icon={<DeleteOutlined />} danger block onClick={deleteObjects} style={{ marginTop: 12 }}>删除元素</Button>
+            </>
+          : null}
+        </div>
       </div>
     </div>
   )

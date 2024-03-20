@@ -1,0 +1,33 @@
+  const deleteObject = (_eventData: MouseEvent, transform: Transform) => {
+    const target = transform.target;
+    const canvas = target.canvas;
+    canvas!.remove(target);
+    canvas!.requestRenderAll();
+  }
+
+  const renderDeleteIcon = (ctx: CanvasRenderingContext2D, left: number, top: number, _styleOverride: never, fabricObject: fabric.Object) => {
+    ctx.save();
+    ctx.translate(left, top);
+    ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle!));
+    ctx.drawImage(deleteIconElement.current!, -controlIconSize / 2, -controlIconSize / 2, controlIconSize, controlIconSize);
+    ctx.restore();
+  }
+
+    // 增加控制栏 - 删除按钮 - 在初始化的 useEffect 中
+    fabric.Object.prototype.controls.deleteControl = new fabric.Control({
+      x: 0.5,
+      y: -0.5,
+      offsetX: -12,
+      offsetY: 12,
+      cursorStyle: 'pointer',
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      mouseUpHandler: deleteObject,
+      render: renderDeleteIcon,
+      cornerSize: controlIconSize
+    });
+
+    // 删除图标
+    const deleteIconImg = new Image()
+    deleteIconImg.src = deleteIcon
+    deleteIconElement.current = deleteIconImg
