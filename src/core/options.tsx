@@ -1,5 +1,5 @@
 import { fabric } from 'fabric'
-import { CustomMenuEnum, TemplateEnum } from './interface.ts'
+import { CustomMenuEnum, KeyPairProps, TemplateEnum } from './interface.ts'
 import { PlusOutlined } from '@ant-design/icons'
 
 // 自定义形状菜单
@@ -40,9 +40,17 @@ export const templateMenu = [
   },
 ]
 
+// TODO: 椅子状态
+export const chairStatusOptions: KeyPairProps[] = []
+
+export const DEFAULT_NAME_NAME = '__NAME__'
+export const DEFAULT_STATUS_NAME = '__STATUS__'
+export const DEFAULT_TABLE_NAME = '__TABLE__'
+export const DEFAULT_CHAIR_NAME = '__CHAIR__'
+
 export const defaultFillAlpha = 0.1
 
-export const defaultDeskColor = {
+export const defaultTableColor = {
   r: 0,
   g: 206,
   b: 209,

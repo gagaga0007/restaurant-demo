@@ -12,6 +12,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.8.2",
     "@types/fabric": "^5.3.7",
+    "ahooks": "^3.7.10",
     "antd": "^5.15.3",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-react": "^7.34.1",

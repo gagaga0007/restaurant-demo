@@ -15,16 +15,18 @@ import { addCircle, addImage, addRect, addTriangle, convertFileToBase64 } from '
 import { CustomMenuEnum, TemplateEnum } from './core/interface.ts'
 import {
   customMenu,
+  DEFAULT_CHAIR_NAME,
+  DEFAULT_TABLE_NAME,
   defaultChairColor,
   defaultCircleOptions,
   defaultCircleWallColor,
   defaultCustomColor,
-  defaultDeskColor,
   defaultFillAlpha,
   defaultLineOptions,
   defaultLineWallColor,
   defaultRectOptions,
   defaultSemiCircleOptions,
+  defaultTableColor,
   defaultTriangleOptions,
   templateMenu,
 } from './core/options.tsx'
@@ -69,11 +71,11 @@ function App() {
     }
   }
 
-  const addDesk = () => {
-    const { r, g, b } = defaultDeskColor
+  const addTable = () => {
+    const { r, g, b } = defaultTableColor
     const primaryColor = `rgb(${r}, ${g}, ${b})`
     const fillColor = `rgba(${r}, ${g}, ${b}, ${defaultFillAlpha})`
-    const options = { ...defaultRectOptions, fill: fillColor, stroke: primaryColor }
+    const options = { ...defaultRectOptions, fill: fillColor, stroke: primaryColor, name: DEFAULT_TABLE_NAME }
     addRect(canvasObj.current, { options })
   }
 
@@ -81,7 +83,7 @@ function App() {
     const { r, g, b } = defaultChairColor
     const primaryColor = `rgb(${r}, ${g}, ${b})`
     const fillColor = `rgba(${r}, ${g}, ${b}, ${defaultFillAlpha})`
-    const options = { ...defaultSemiCircleOptions, fill: fillColor, stroke: primaryColor }
+    const options = { ...defaultSemiCircleOptions, fill: fillColor, stroke: primaryColor, name: DEFAULT_CHAIR_NAME }
     addCircle(canvasObj.current, { options })
   }
 
@@ -132,55 +134,55 @@ function App() {
     if (key === TemplateEnum.TWO) {
       // 双人桌
       const rect = addRect(canvasObj.current, {
-        options: { ...defaultRectOptions, left: 44, top: 155, width: 70, height: 70 },
+        options: { ...defaultRectOptions, left: 44, top: 155, width: 70, height: 70, name: DEFAULT_TABLE_NAME },
       })
       const circle1 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 60, top: 135 },
+        options: { ...defaultSemiCircleOptions, left: 60, top: 135, name: DEFAULT_CHAIR_NAME },
       })
       const circle2 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 101, top: 247, angle: 180 },
+        options: { ...defaultSemiCircleOptions, left: 101, top: 247, angle: 180, name: DEFAULT_CHAIR_NAME },
       })
       newObjects.push(rect, circle1, circle2)
     } else if (key === TemplateEnum.FOUR) {
       // 四人桌
       const rect = addRect(canvasObj.current, {
-        options: { ...defaultRectOptions, left: 174, top: 155 },
+        options: { ...defaultRectOptions, left: 174, top: 155, name: DEFAULT_TABLE_NAME },
       })
       const circle1 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 186, top: 135 },
+        options: { ...defaultSemiCircleOptions, left: 186, top: 135, name: DEFAULT_CHAIR_NAME },
       })
       const circle2 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 243, top: 135 },
+        options: { ...defaultSemiCircleOptions, left: 243, top: 135, name: DEFAULT_CHAIR_NAME },
       })
       const circle3 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 229, top: 248, angle: 180 },
+        options: { ...defaultSemiCircleOptions, left: 229, top: 248, angle: 180, name: DEFAULT_CHAIR_NAME },
       })
       const circle4 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 285, top: 248, angle: 180 },
+        options: { ...defaultSemiCircleOptions, left: 285, top: 248, angle: 180, name: DEFAULT_CHAIR_NAME },
       })
       newObjects.push(rect, circle1, circle2, circle3, circle4)
     } else if (key === TemplateEnum.SIX) {
       // 六人桌
       const rect = addRect(canvasObj.current, {
-        options: { ...defaultRectOptions, left: 362, top: 155 },
+        options: { ...defaultRectOptions, left: 362, top: 155, width: 180, name: DEFAULT_TABLE_NAME },
       })
       const circle1 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 374, top: 135 },
+        options: { ...defaultSemiCircleOptions, left: 374, top: 135, name: DEFAULT_CHAIR_NAME },
       })
       const circle2 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 431, top: 135 },
+        options: { ...defaultSemiCircleOptions, left: 431, top: 135, name: DEFAULT_CHAIR_NAME },
       })
       const circle3 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 415, top: 248, angle: 180 },
+        options: { ...defaultSemiCircleOptions, left: 488, top: 135, name: DEFAULT_CHAIR_NAME },
       })
       const circle4 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 472, top: 248, angle: 180 },
+        options: { ...defaultSemiCircleOptions, left: 415, top: 248, angle: 180, name: DEFAULT_CHAIR_NAME },
       })
       const circle5 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 341, top: 215, angle: 270 },
+        options: { ...defaultSemiCircleOptions, left: 472, top: 248, angle: 180, name: DEFAULT_CHAIR_NAME },
       })
       const circle6 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 505, top: 173, angle: 90 },
+        options: { ...defaultSemiCircleOptions, left: 529, top: 248, angle: 180, name: DEFAULT_CHAIR_NAME },
       })
       newObjects.push(rect, circle1, circle2, circle3, circle4, circle5, circle6)
     }
@@ -229,6 +231,8 @@ function App() {
     // 监听选择元素 初始/更新/取消
     fabricCanvas.on('selection:created', (e) => {
       onSelectedObjectChange(e.selected ?? [])
+      // TODO
+      console.log(e.selected, e.selected?.[0]?.type)
     })
 
     fabricCanvas.on('selection:updated', (e) => {
@@ -245,6 +249,7 @@ function App() {
     return () => {
       updateCanvasContext(null)
       fabricCanvas.dispose()
+      setSelectedObjects([])
     }
   }, [])
 
@@ -271,7 +276,7 @@ function App() {
             取消背景
           </Button>
         )}
-        <Button icon={<PlusOutlined />} type="primary" ghost onClick={addDesk}>
+        <Button icon={<PlusOutlined />} type="primary" ghost onClick={addTable}>
           桌子
         </Button>
         <Button icon={<PlusOutlined />} type="primary" ghost onClick={addChair}>
