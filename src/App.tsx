@@ -1,31 +1,20 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import {
-  Button,
-  Col,
-  ColorPicker,
-  Divider,
-  Dropdown,
-  Form,
-  InputNumber,
-  Popconfirm,
-  Row,
-  Space,
-  Typography,
-  Upload,
-} from 'antd'
+import { useEffect, useRef, useState } from 'react'
+import { Button, Dropdown, Popconfirm, Space, Upload } from 'antd'
 import { fabric } from 'fabric'
 import {
+  AppstoreAddOutlined,
   CloseCircleOutlined,
-  CopyOutlined,
+  ContainerOutlined,
   DeleteOutlined,
   DownOutlined,
   PlusOutlined,
   UploadOutlined,
 } from '@ant-design/icons'
-import { UploadChangeParam, UploadFile } from 'antd/lib/upload'
+import { UploadChangeParam } from 'antd/lib/upload'
 import { addCircle, addImage, addRect, addTriangle, convertFileToBase64 } from './core/util.ts'
-import { CanvasPropertiesProps, ChangePropertiesProps, CustomMenuEnum } from './core/interface.ts'
+import { CustomMenuEnum, TemplateEnum } from './core/interface.ts'
 import {
+  customMenu,
   defaultChairColor,
   defaultCircleOptions,
   defaultCircleWallColor,
@@ -37,13 +26,11 @@ import {
   defaultRectOptions,
   defaultSemiCircleOptions,
   defaultTriangleOptions,
-} from './core/options.ts'
+  templateMenu,
+} from './core/options.tsx'
+import { EditForm } from './components/EditForm.tsx'
 
 import './App.css'
-
-const settingInitial: Partial<ChangePropertiesProps> = {
-  strokeWidth: 2,
-}
 
 function App() {
   const innerElement = useRef<HTMLDivElement>(null)
@@ -53,29 +40,9 @@ function App() {
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([])
 
   const [backgroundImage, setBackgroundImage] = useState('')
-  const [settingForm] = Form.useForm()
-
-  // 添加自定义形状的菜单
-  const customMenu = useMemo(
-    () => [
-      {
-        label: '矩形',
-        key: CustomMenuEnum.RECTANGLE,
-      },
-      {
-        label: '圆形',
-        key: CustomMenuEnum.CIRCLE,
-      },
-      {
-        label: '三角形',
-        key: CustomMenuEnum.TRIANGLE,
-      },
-    ],
-    [],
-  )
 
   // 改变背景图
-  const changeBgImg = async (fileInfo?: UploadChangeParam<UploadFile>) => {
+  const changeBgImg = async (fileInfo?: UploadChangeParam) => {
     if (!fileInfo) {
       setBackgroundImage('')
     } else {
@@ -132,19 +99,19 @@ function App() {
     addRect(canvasObj.current, { options })
   }
 
-  const addPicture = async (fileInfo?: UploadChangeParam<UploadFile>) => {
+  const addPicture = async (fileInfo?: UploadChangeParam) => {
     if (!fileInfo) return
 
     const file = fileInfo.file.originFileObj
     await addImage(canvasObj.current, file)
   }
 
-  const addCustom = (e: { key: string; [key: string]: any }) => {
+  const addCustom = (key: string) => {
     const { r, g, b } = defaultCustomColor
     const primaryColor = `rgb(${r}, ${g}, ${b})`
-    const defaultOptions = { stroke: primaryColor }
+    const defaultOptions = { stroke: primaryColor, left: 240 }
 
-    switch (e.key) {
+    switch (key) {
       case CustomMenuEnum.RECTANGLE:
         addRect(canvasObj.current, { options: { ...defaultRectOptions, ...defaultOptions } })
         break
@@ -157,6 +124,71 @@ function App() {
       default:
         break
     }
+  }
+
+  const addTemplate = (key: string) => {
+    const newObjects: fabric.Object[] = []
+
+    if (key === TemplateEnum.TWO) {
+      // 双人桌
+      const rect = addRect(canvasObj.current, {
+        options: { ...defaultRectOptions, left: 44, top: 155, width: 70, height: 70 },
+      })
+      const circle1 = addCircle(canvasObj.current, {
+        options: { ...defaultSemiCircleOptions, left: 60, top: 135 },
+      })
+      const circle2 = addCircle(canvasObj.current, {
+        options: { ...defaultSemiCircleOptions, left: 101, top: 247, angle: 180 },
+      })
+      newObjects.push(rect, circle1, circle2)
+    } else if (key === TemplateEnum.FOUR) {
+      // 四人桌
+      const rect = addRect(canvasObj.current, {
+        options: { ...defaultRectOptions, left: 174, top: 155 },
+      })
+      const circle1 = addCircle(canvasObj.current, {
+        options: { ...defaultSemiCircleOptions, left: 186, top: 135 },
+      })
+      const circle2 = addCircle(canvasObj.current, {
+        options: { ...defaultSemiCircleOptions, left: 243, top: 135 },
+      })
+      const circle3 = addCircle(canvasObj.current, {
+        options: { ...defaultSemiCircleOptions, left: 229, top: 248, angle: 180 },
+      })
+      const circle4 = addCircle(canvasObj.current, {
+        options: { ...defaultSemiCircleOptions, left: 285, top: 248, angle: 180 },
+      })
+      newObjects.push(rect, circle1, circle2, circle3, circle4)
+    } else if (key === TemplateEnum.SIX) {
+      // 六人桌
+      const rect = addRect(canvasObj.current, {
+        options: { ...defaultRectOptions, left: 362, top: 155 },
+      })
+      const circle1 = addCircle(canvasObj.current, {
+        options: { ...defaultSemiCircleOptions, left: 374, top: 135 },
+      })
+      const circle2 = addCircle(canvasObj.current, {
+        options: { ...defaultSemiCircleOptions, left: 431, top: 135 },
+      })
+      const circle3 = addCircle(canvasObj.current, {
+        options: { ...defaultSemiCircleOptions, left: 415, top: 248, angle: 180 },
+      })
+      const circle4 = addCircle(canvasObj.current, {
+        options: { ...defaultSemiCircleOptions, left: 472, top: 248, angle: 180 },
+      })
+      const circle5 = addCircle(canvasObj.current, {
+        options: { ...defaultSemiCircleOptions, left: 341, top: 215, angle: 270 },
+      })
+      const circle6 = addCircle(canvasObj.current, {
+        options: { ...defaultSemiCircleOptions, left: 505, top: 173, angle: 90 },
+      })
+      newObjects.push(rect, circle1, circle2, circle3, circle4, circle5, circle6)
+    }
+
+    // 选中生成的图形
+    canvasObj.current.discardActiveObject()
+    const activeObjects = new fabric.ActiveSelection(newObjects, { canvas: canvasObj.current })
+    canvasObj.current.setActiveObject(activeObjects)
   }
 
   const clearAll = () => {
@@ -172,93 +204,14 @@ function App() {
     setSelectedObjects(canvas?.getActiveObjects() ?? [])
   }
 
-  const onChangeObjectProperties = (data: ChangePropertiesProps) => {
-    selectedObjects.forEach((v) => {
-      if (data.fillColor) {
-        const { r, g, b, a } = data.fillColor.toRgb()
-        v.set('fill', `rgba(${r}, ${g}, ${b}, ${a})`)
-      }
-      if (data.strokeColor) {
-        const { r, g, b, a } = data.strokeColor.toRgb()
-        v.set('stroke', `rgba(${r}, ${g}, ${b}, ${a})`)
-      }
-      v.set('strokeWidth', Number(data.strokeWidth))
-      v.canvas?.renderAll()
-    })
-  }
-
-  const cloneObjects = () => {
-    if (selectedObjects.length === 0) return
-
-    const item = selectedObjects[0]
-    const canvas = item.canvas
-    const group = item.group
-
-    const offset = 20
-
-    if (group) {
-      const clonedObjects: fabric.Object[] = []
-
-      // 选择了多个元素
-      group._objects.forEach((v) => {
-        v.clone((cloned: fabric.Object) => {
-          if (cloned.type === 'image') {
-            // group 中，图片 left、top 不需要计算，基于原始元素正常处理
-            cloned.left = v.left + offset
-            cloned.top = v.top + offset
-          } else {
-            // group 中，图形元素 left、top 的计算问题：
-            // https://stackoverflow.com/questions/71356612/why-top-and-left-properties-become-negative-after-selection-fabricjs
-            // https://stackoverflow.com/questions/29829475/how-to-get-the-canvas-relative-position-of-an-object-that-is-in-a-group
-            cloned.left = v.left + group.left + group.width / 2 + offset
-            cloned.top = v.top + group.top + group.height / 2 + offset
-          }
-          canvas.add(cloned)
-          // 加入到新组中
-          clonedObjects.push(cloned)
-        })
-      })
-      // 取消当前选中
-      canvas.discardActiveObject()
-      // 设置选中为新克隆的元素，从新组中取
-      const activeObjects = new fabric.ActiveSelection(clonedObjects, { canvas })
-      canvas.setActiveObject(activeObjects)
-      canvas.requestRenderAll()
-    } else {
-      // 单个元素
-      item.clone((cloned: fabric.Object) => {
-        cloned.left += offset
-        cloned.top += offset
-        canvas.add(cloned)
-        // 取消当前选中
-        canvas.discardActiveObject()
-        // 设置选中为新克隆的元素
-        canvas.setActiveObject(cloned)
-        setSelectedObjects([cloned])
-      })
-    }
-  }
-
-  const deleteObjects = () => {
-    selectedObjects.forEach((v) => {
-      const canvas = v.canvas
-      canvas.remove(v)
-      canvas.requestRenderAll()
-    })
-    // 清空选择框
+  const onDeleteObjects = () => {
+    // 清空选择框，多选时若删除元素，会在画布上留一个选择框
     canvasObj.current.discardActiveObject()
-    setSelectedObjects([])
   }
 
   const updateCanvasContext = (canvas: fabric.Canvas | null) => {
     canvasObj.current = canvas
   }
-
-  useEffect(() => {
-    if (selectedObjects.length === 0) {
-      settingForm.resetFields()
-    }
-  }, [selectedObjects, settingForm])
 
   useEffect(() => {
     // 设置宽高
@@ -335,10 +288,18 @@ function App() {
             图片
           </Button>
         </Upload>
-        <Dropdown menu={{ items: customMenu, onClick: addCustom }}>
-          <Button icon={<PlusOutlined />} type="primary" ghost>
+        <Dropdown menu={{ items: customMenu, onClick: (e) => addCustom(e.key) }}>
+          <Button icon={<AppstoreAddOutlined />} type="primary" ghost>
             <Space>
               其它
+              <DownOutlined />
+            </Space>
+          </Button>
+        </Dropdown>
+        <Dropdown menu={{ items: templateMenu, onClick: (e) => addTemplate(e.key) }}>
+          <Button icon={<ContainerOutlined />} type="primary" ghost>
+            <Space>
+              模板
               <DownOutlined />
             </Space>
           </Button>
@@ -384,56 +345,11 @@ function App() {
           }}
         >
           {selectedObjects.length > 0 ? (
-            <>
-              <Typography.Title level={4} style={{ margin: 0 }}>
-                操作
-              </Typography.Title>
-              <Divider />
-              <Form
-                form={settingForm}
-                layout="vertical"
-                onFinish={onChangeObjectProperties}
-                initialValues={settingInitial}
-              >
-                <Row>
-                  <Col span={12}>
-                    <Form.Item name="strokeColor" label="边框颜色">
-                      <ColorPicker format="rgb" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item name="fillColor" label="填充颜色">
-                      <ColorPicker format="rgb" />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Form.Item name="strokeWidth" label="边框宽度">
-                  <InputNumber
-                    min={0}
-                    max={10}
-                    step={1}
-                    formatter={(value) => Math.floor(value ?? 0) + ''}
-                    style={{ width: '100%' }}
-                  />
-                </Form.Item>
-                <Button type="primary" block htmlType="submit">
-                  确认
-                </Button>
-              </Form>
-              <Button
-                icon={<CopyOutlined />}
-                type="primary"
-                ghost
-                block
-                onClick={cloneObjects}
-                style={{ margin: '12px 0' }}
-              >
-                克隆元素
-              </Button>
-              <Button icon={<DeleteOutlined />} danger block onClick={deleteObjects}>
-                删除元素
-              </Button>
-            </>
+            <EditForm
+              selectedObjects={selectedObjects}
+              setSelectedObjects={setSelectedObjects}
+              onDeleteObjects={onDeleteObjects}
+            />
           ) : null}
         </div>
       </div>

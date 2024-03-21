@@ -1,10 +1,5 @@
 import { Color } from 'antd/lib/color-picker'
 
-export interface CanvasPropertiesProps {
-  width: number
-  height: number
-}
-
 export interface ChangePropertiesProps {
   fillColor: Color
   strokeColor: Color
@@ -15,4 +10,10 @@ export enum CustomMenuEnum {
   RECTANGLE = 'rectangle',
   CIRCLE = 'circle',
   TRIANGLE = 'triangle',
+}
+
+export enum TemplateEnum {
+  TWO = '2',
+  FOUR = '4',
+  SIX = '6',
 }

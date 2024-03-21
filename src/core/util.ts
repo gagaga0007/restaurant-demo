@@ -1,5 +1,10 @@
 import { ICircleOptions, IRectOptions, ITriangleOptions } from 'fabric/fabric-impl'
-import { defaultImageOptions, defaultRectOptions, defaultSemiCircleOptions, defaultTriangleOptions } from './options.ts'
+import {
+  defaultImageOptions,
+  defaultRectOptions,
+  defaultSemiCircleOptions,
+  defaultTriangleOptions,
+} from './options.tsx'
 import { fabric } from 'fabric'
 
 /**
@@ -26,6 +31,10 @@ export const convertFileToBase64 = async (file: File): Promise<string> => {
 export const addRect = (ctx: fabric.Canvas, { options = defaultRectOptions }: { options?: IRectOptions } = {}) => {
   const rect = new fabric.Rect({ ...options })
   ctx.add(rect)
+  ctx.discardActiveObject()
+  ctx.setActiveObject(rect)
+
+  return rect
 }
 
 /**
@@ -37,8 +46,12 @@ export const addCircle = (
   ctx: fabric.Canvas,
   { options = defaultSemiCircleOptions }: { options?: ICircleOptions } = {},
 ) => {
-  const arc = new fabric.Circle({ ...options })
-  ctx.add(arc)
+  const circle = new fabric.Circle({ ...options })
+  ctx.add(circle)
+  ctx.discardActiveObject()
+  ctx.setActiveObject(circle)
+
+  return circle
 }
 
 /**
@@ -50,8 +63,12 @@ export const addTriangle = (
   ctx: fabric.Canvas,
   { options = defaultTriangleOptions }: { options?: ITriangleOptions } = {},
 ) => {
-  const arc = new fabric.Triangle({ ...options })
-  ctx.add(arc)
+  const triangle = new fabric.Triangle({ ...options })
+  ctx.add(triangle)
+  ctx.discardActiveObject()
+  ctx.setActiveObject(triangle)
+
+  return triangle
 }
 
 export const addImage = async (ctx: fabric.Canvas, file?: File | string) => {
@@ -66,13 +83,19 @@ export const addImage = async (ctx: fabric.Canvas, file?: File | string) => {
     src = await convertFileToBase64(file)
   }
 
-  const addImage = new Image()
-  addImage.src = src
-  addImage.onload = () => {
-    const image = new fabric.Image(addImage, { ...defaultImageOptions })
-    // 缩放到宽度为 300
-    image.scaleToWidth(300)
+  return new Promise((resolve) => {
+    const addImage = new Image()
+    addImage.src = src
+    addImage.onload = () => {
+      const image = new fabric.Image(addImage, { ...defaultImageOptions })
+      // 缩放到宽度为 300
+      image.scaleToWidth(300)
 
-    ctx.add(image)
-  }
+      ctx.add(image)
+      ctx.discardActiveObject()
+      ctx.setActiveObject(image)
+
+      return resolve(image)
+    }
+  })
 }
