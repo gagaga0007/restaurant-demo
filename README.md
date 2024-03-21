@@ -4,7 +4,13 @@
 - Fabric.js - canvas 绘制
 - Antd - UI 组件
 
-#### 运行
+#### 开发环境
 
 - `yarn`
 - `yarn run dev`
+
+#### 生产环境
+
+- `yarn`
+- `yarn run build`
+- `yarn run preview`
