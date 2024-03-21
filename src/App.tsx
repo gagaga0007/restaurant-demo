@@ -12,10 +12,11 @@ import {
 } from '@ant-design/icons'
 import { UploadChangeParam } from 'antd/lib/upload'
 import { addCircle, addImage, addRect, addTriangle, convertFileToBase64 } from './core/util.ts'
-import { CustomMenuEnum, TemplateEnum } from './core/interface.ts'
+import { ChairStatusEnum, CustomMenuEnum, TemplateEnum } from './core/interface.ts'
 import {
   customMenu,
   DEFAULT_CHAIR_NAME,
+  DEFAULT_STATUS_NAME,
   DEFAULT_TABLE_NAME,
   defaultChairColor,
   defaultCircleOptions,
@@ -75,7 +76,13 @@ function App() {
     const { r, g, b } = defaultTableColor
     const primaryColor = `rgb(${r}, ${g}, ${b})`
     const fillColor = `rgba(${r}, ${g}, ${b}, ${defaultFillAlpha})`
-    const options = { ...defaultRectOptions, fill: fillColor, stroke: primaryColor, name: DEFAULT_TABLE_NAME }
+    const options = {
+      ...defaultRectOptions,
+      fill: fillColor,
+      stroke: primaryColor,
+      // 类型（桌子）
+      name: DEFAULT_TABLE_NAME,
+    }
     addRect(canvasObj.current, { options })
   }
 
@@ -83,7 +90,13 @@ function App() {
     const { r, g, b } = defaultChairColor
     const primaryColor = `rgb(${r}, ${g}, ${b})`
     const fillColor = `rgba(${r}, ${g}, ${b}, ${defaultFillAlpha})`
-    const options = { ...defaultSemiCircleOptions, fill: fillColor, stroke: primaryColor, name: DEFAULT_CHAIR_NAME }
+    const options = {
+      ...defaultSemiCircleOptions,
+      fill: fillColor,
+      stroke: primaryColor,
+      // 类型（椅子）:椅子状态（默认）
+      name: `${DEFAULT_CHAIR_NAME}:${DEFAULT_STATUS_NAME}${ChairStatusEnum.DEFAULT}`,
+    }
     addCircle(canvasObj.current, { options })
   }
 
@@ -131,59 +144,51 @@ function App() {
   const addTemplate = (key: string) => {
     const newObjects: fabric.Object[] = []
 
+    const tableOptions = {
+      ...defaultRectOptions,
+      fill: `rgba(${defaultTableColor.r}, ${defaultTableColor.g}, ${defaultTableColor.b}, ${defaultFillAlpha})`,
+      stroke: `rgb(${defaultTableColor.r}, ${defaultTableColor.g}, ${defaultTableColor.b})`,
+      // 标识为桌子
+      name: DEFAULT_TABLE_NAME,
+    }
+
+    const chairOptions = {
+      ...defaultSemiCircleOptions,
+      fill: `rgba(${defaultChairColor.r}, ${defaultChairColor.g}, ${defaultChairColor.b}, ${defaultFillAlpha})`,
+      stroke: `rgb(${defaultChairColor.r}, ${defaultChairColor.g}, ${defaultChairColor.b})`,
+      // 标识为椅子，并给一个默认状态
+      name: `${DEFAULT_CHAIR_NAME}:${DEFAULT_STATUS_NAME}${ChairStatusEnum.DEFAULT}`,
+    }
+
     if (key === TemplateEnum.TWO) {
       // 双人桌
       const rect = addRect(canvasObj.current, {
-        options: { ...defaultRectOptions, left: 44, top: 155, width: 70, height: 70, name: DEFAULT_TABLE_NAME },
+        options: { ...tableOptions, left: 44, top: 155, width: 70, height: 70 },
       })
-      const circle1 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 60, top: 135, name: DEFAULT_CHAIR_NAME },
-      })
-      const circle2 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 101, top: 247, angle: 180, name: DEFAULT_CHAIR_NAME },
-      })
+      const circle1 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 60, top: 135 } })
+      const circle2 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 101, top: 247, angle: 180 } })
       newObjects.push(rect, circle1, circle2)
     } else if (key === TemplateEnum.FOUR) {
       // 四人桌
       const rect = addRect(canvasObj.current, {
-        options: { ...defaultRectOptions, left: 174, top: 155, name: DEFAULT_TABLE_NAME },
+        options: { ...tableOptions, left: 174, top: 155, name: DEFAULT_TABLE_NAME },
       })
-      const circle1 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 186, top: 135, name: DEFAULT_CHAIR_NAME },
-      })
-      const circle2 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 243, top: 135, name: DEFAULT_CHAIR_NAME },
-      })
-      const circle3 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 229, top: 248, angle: 180, name: DEFAULT_CHAIR_NAME },
-      })
-      const circle4 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 285, top: 248, angle: 180, name: DEFAULT_CHAIR_NAME },
-      })
+      const circle1 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 186, top: 135 } })
+      const circle2 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 243, top: 135 } })
+      const circle3 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 229, top: 248, angle: 180 } })
+      const circle4 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 285, top: 248, angle: 180 } })
       newObjects.push(rect, circle1, circle2, circle3, circle4)
     } else if (key === TemplateEnum.SIX) {
       // 六人桌
       const rect = addRect(canvasObj.current, {
-        options: { ...defaultRectOptions, left: 362, top: 155, width: 180, name: DEFAULT_TABLE_NAME },
+        options: { ...tableOptions, left: 362, top: 155, width: 180, name: DEFAULT_TABLE_NAME },
       })
-      const circle1 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 374, top: 135, name: DEFAULT_CHAIR_NAME },
-      })
-      const circle2 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 431, top: 135, name: DEFAULT_CHAIR_NAME },
-      })
-      const circle3 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 488, top: 135, name: DEFAULT_CHAIR_NAME },
-      })
-      const circle4 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 415, top: 248, angle: 180, name: DEFAULT_CHAIR_NAME },
-      })
-      const circle5 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 472, top: 248, angle: 180, name: DEFAULT_CHAIR_NAME },
-      })
-      const circle6 = addCircle(canvasObj.current, {
-        options: { ...defaultSemiCircleOptions, left: 529, top: 248, angle: 180, name: DEFAULT_CHAIR_NAME },
-      })
+      const circle1 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 374, top: 135 } })
+      const circle2 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 431, top: 135 } })
+      const circle3 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 488, top: 135 } })
+      const circle4 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 415, top: 248, angle: 180 } })
+      const circle5 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 472, top: 248, angle: 180 } })
+      const circle6 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 529, top: 248, angle: 180 } })
       newObjects.push(rect, circle1, circle2, circle3, circle4, circle5, circle6)
     }
 
@@ -231,8 +236,6 @@ function App() {
     // 监听选择元素 初始/更新/取消
     fabricCanvas.on('selection:created', (e) => {
       onSelectedObjectChange(e.selected ?? [])
-      // TODO
-      console.log(e.selected, e.selected?.[0]?.type)
     })
 
     fabricCanvas.on('selection:updated', (e) => {

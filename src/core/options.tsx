@@ -1,5 +1,5 @@
 import { fabric } from 'fabric'
-import { CustomMenuEnum, KeyPairProps, TemplateEnum } from './interface.ts'
+import { ChairStatusEnum, CustomMenuEnum, KeyPairProps, TemplateEnum } from './interface.ts'
 import { PlusOutlined } from '@ant-design/icons'
 
 // 自定义形状菜单
@@ -39,9 +39,6 @@ export const templateMenu = [
     icon: <PlusOutlined />,
   },
 ]
-
-// TODO: 椅子状态
-export const chairStatusOptions: KeyPairProps[] = []
 
 export const DEFAULT_NAME_NAME = '__NAME__'
 export const DEFAULT_STATUS_NAME = '__STATUS__'
@@ -138,3 +135,29 @@ export const defaultImageOptions: fabric.IImageOptions = {
   left: 200,
   top: 200,
 }
+
+/**
+ * 椅子状态
+ */
+export const chairStatusOptions: (KeyPairProps & { color: string })[] = [
+  {
+    key: '默认',
+    value: ChairStatusEnum.DEFAULT,
+    color: `rgb(${defaultChairColor.r}, ${defaultChairColor.g}, ${defaultChairColor.b})`,
+  },
+  {
+    key: '已预约',
+    value: ChairStatusEnum.HAS_ORDER,
+    color: `rgb(255, 77, 79)`,
+  },
+  {
+    key: '未预约',
+    value: ChairStatusEnum.NO_ORDER,
+    color: `rgb(82, 196, 26)`,
+  },
+  {
+    key: '其他',
+    value: ChairStatusEnum.UNNAME_ORDER,
+    color: `rgb(255, 169, 64)`,
+  },
+]

@@ -13,12 +13,18 @@ export interface ChangePropertiesProps {
   status?: string
 }
 
+/**
+ * 自定义图形
+ */
 export enum CustomMenuEnum {
   RECTANGLE = 'rectangle',
   CIRCLE = 'circle',
   TRIANGLE = 'triangle',
 }
 
+/**
+ * 模板类型
+ */
 export enum TemplateEnum {
   TWO = '2',
   FOUR = '4',
@@ -27,14 +33,10 @@ export enum TemplateEnum {
 
 /**
  * 椅子状态
- * 可预约
- * 已预约
- * 未预约
- * 控制中
  */
 export enum ChairStatusEnum {
-  STATUS1 = '1',
-  STATUS2 = '2',
-  STATUS3 = '3',
-  STATUS4 = '4',
+  DEFAULT = '1',
+  HAS_ORDER = '2',
+  UNNAME_ORDER = '3',
+  NO_ORDER = '4',
 }
