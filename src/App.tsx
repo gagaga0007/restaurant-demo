@@ -1,57 +1,80 @@
-// import _ from "lodash";
-import { useEffect, useRef, useState } from 'react'
-import { Button, Col, ColorPicker, Divider, Form, InputNumber, Popconfirm, Row, Space, Typography, Upload } from 'antd'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  Button,
+  Col,
+  ColorPicker,
+  Divider,
+  Dropdown,
+  Form,
+  InputNumber,
+  Popconfirm,
+  Row,
+  Space,
+  Typography,
+  Upload,
+} from 'antd'
 import { fabric } from 'fabric'
-import { CloseCircleOutlined, CopyOutlined, DeleteOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
+import {
+  CloseCircleOutlined,
+  CopyOutlined,
+  DeleteOutlined,
+  DownOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from '@ant-design/icons'
 import { UploadChangeParam, UploadFile } from 'antd/lib/upload'
-import { Color } from 'antd/lib/color-picker'
-import { convertFileToBase64 } from './core/util.ts'
+import { addCircle, addImage, addRect, addTriangle, convertFileToBase64 } from './core/util.ts'
+import { CanvasPropertiesProps, ChangePropertiesProps, CustomMenuEnum } from './core/interface.ts'
+import {
+  defaultChairColor,
+  defaultCircleOptions,
+  defaultCircleWallColor,
+  defaultCustomColor,
+  defaultDeskColor,
+  defaultFillAlpha,
+  defaultLineOptions,
+  defaultLineWallColor,
+  defaultRectOptions,
+  defaultSemiCircleOptions,
+  defaultTriangleOptions,
+} from './core/options.ts'
 
 import './App.css'
-
-interface CanvasPropertiesProps {
-  width: number
-  height: number
-}
-
-interface ChangePropertiesProps {
-  fillColor: Color
-  strokeColor: Color
-  strokeWidth: string | number
-}
 
 const settingInitial: Partial<ChangePropertiesProps> = {
   strokeWidth: 2,
 }
-
-// const controlIconSize = 16
-
-const fillAlpha = 0.5
-const defaultRectR = 30,
-  defaultRectG = 144,
-  defaultRectB = 255
-const defaultCircle1R = 255,
-  defaultCircle1G = 75,
-  defaultCircle1B = 75
-const defaultCircle2R = 222,
-  defaultCircle2G = 184,
-  defaultCircle2B = 135
-const defaultWallR = 0,
-  defaultWallG = 0,
-  defaultWallB = 0
 
 function App() {
   const innerElement = useRef<HTMLDivElement>(null)
   const canvasElement = useRef<HTMLCanvasElement>(null)
 
   const canvasObj = useRef<fabric.Canvas | null>(null)
-  const canvasProperties = useRef<CanvasPropertiesProps>({ width: 0, height: 0 })
-
-  const [backgroundImage, setBackgroundImage] = useState('')
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([])
 
+  const [backgroundImage, setBackgroundImage] = useState('')
   const [settingForm] = Form.useForm()
 
+  // 添加自定义形状的菜单
+  const customMenu = useMemo(
+    () => [
+      {
+        label: '矩形',
+        key: CustomMenuEnum.RECTANGLE,
+      },
+      {
+        label: '圆形',
+        key: CustomMenuEnum.CIRCLE,
+      },
+      {
+        label: '三角形',
+        key: CustomMenuEnum.TRIANGLE,
+      },
+    ],
+    [],
+  )
+
+  // 改变背景图
   const changeBgImg = async (fileInfo?: UploadChangeParam<UploadFile>) => {
     if (!fileInfo) {
       setBackgroundImage('')
@@ -62,17 +85,17 @@ function App() {
 
       // 盒子宽度
       const innerWidth = innerElement.current!.getBoundingClientRect().width
-
       // 通过 Image 对象获取图片宽高，并设置 canvas 宽高
       const image = new Image()
       image.src = base64
       image.onload = () => {
         const height = (image.height * innerWidth) / image.width
         innerElement.current!.style.height = height + 'px'
-
         canvasObj.current!.setHeight(height)
-        canvasElement.current!.height = height - 2
-        canvasElement.current!.width = innerWidth - 2
+
+        const borderWidth = 2
+        canvasElement.current!.height = height - borderWidth
+        canvasElement.current!.width = innerWidth - borderWidth
 
         setBackgroundImage(base64)
       }
@@ -80,92 +103,59 @@ function App() {
   }
 
   const addDesk = () => {
-    const primaryColor = `rgb(${defaultRectR}, ${defaultRectG}, ${defaultRectB})`
-    const fillColor = `rgba(${defaultRectR}, ${defaultRectG}, ${defaultRectB}, ${fillAlpha})`
-
-    const rect = new fabric.Rect({
-      left: 50,
-      top: 100,
-      fill: fillColor,
-      width: 120,
-      height: 70,
-      stroke: primaryColor,
-      strokeWidth: 2,
-    })
-
-    canvasObj.current!.add(rect)
+    const { r, g, b } = defaultDeskColor
+    const primaryColor = `rgb(${r}, ${g}, ${b})`
+    const fillColor = `rgba(${r}, ${g}, ${b}, ${defaultFillAlpha})`
+    const options = { ...defaultRectOptions, fill: fillColor, stroke: primaryColor }
+    addRect(canvasObj.current, { options })
   }
 
   const addChair = () => {
-    const primaryColor = `rgba(${defaultCircle1R}, ${defaultCircle1G}, ${defaultCircle1B})`
-    const fillColor = `rgba(${defaultCircle1R}, ${defaultCircle1G}, ${defaultCircle1B}, ${fillAlpha})`
-
-    const arc = new fabric.Circle({
-      radius: 20,
-      startAngle: -180,
-      endAngle: 0,
-      left: 50,
-      top: 30,
-      fill: fillColor,
-      width: 40,
-      height: 40,
-      stroke: primaryColor,
-      strokeWidth: 2,
-    })
-
-    canvasObj.current!.add(arc)
+    const { r, g, b } = defaultChairColor
+    const primaryColor = `rgb(${r}, ${g}, ${b})`
+    const fillColor = `rgba(${r}, ${g}, ${b}, ${defaultFillAlpha})`
+    const options = { ...defaultSemiCircleOptions, fill: fillColor, stroke: primaryColor }
+    addCircle(canvasObj.current, { options })
   }
 
-  const addCircle = () => {
-    const primaryColor = `rgba(${defaultCircle2R}, ${defaultCircle2G}, ${defaultCircle2B})`
-
-    const circle = new fabric.Circle({
-      radius: 20,
-      left: 180,
-      top: 100,
-      fill: primaryColor,
-      width: 40,
-      height: 40,
-      selectable: true,
-      stroke: primaryColor,
-      strokeWidth: 2,
-    })
-
-    canvasObj.current!.add(circle)
+  const addCircleWall = () => {
+    const { r, g, b } = defaultCircleWallColor
+    const primaryColor = `rgb(${r}, ${g}, ${b})`
+    const options = { ...defaultCircleOptions, fill: primaryColor, stroke: primaryColor }
+    addCircle(canvasObj.current, { options })
   }
 
-  const addWall = () => {
-    const fillColor = `rgb(${defaultWallR}, ${defaultWallG}, ${defaultWallB})`
-
-    const rect = new fabric.Rect({
-      left: 240,
-      top: 50,
-      fill: fillColor,
-      width: 5,
-      height: 200,
-    })
-
-    canvasObj.current!.add(rect)
+  const addLineWall = () => {
+    const { r, g, b } = defaultLineWallColor
+    const primaryColor = `rgb(${r}, ${g}, ${b})`
+    const options = { ...defaultLineOptions, fill: primaryColor, stroke: primaryColor }
+    addRect(canvasObj.current, { options })
   }
 
-  const addImage = async (fileInfo?: UploadChangeParam<UploadFile>) => {
+  const addPicture = async (fileInfo?: UploadChangeParam<UploadFile>) => {
     if (!fileInfo) return
 
     const file = fileInfo.file.originFileObj
-    // 转成 Base64
-    const base64 = await convertFileToBase64(file as File)
+    await addImage(canvasObj.current, file)
+  }
 
-    const addImage = new Image()
-    addImage.src = base64
-    addImage.onload = () => {
-      const image = new fabric.Image(addImage, {
-        left: 200,
-        top: 200,
-      })
-      // 缩放到宽度为 300
-      image.scaleToWidth(300)
+  const addCustom = (e: { key: string; [key: string]: any }) => {
+    const { r, g, b } = defaultCustomColor
+    const primaryColor = `rgb(${r}, ${g}, ${b})`
+    const defaultOptions = { stroke: primaryColor }
 
-      canvasObj.current!.add(image)
+    switch (e.key) {
+      case CustomMenuEnum.RECTANGLE:
+        addRect(canvasObj.current, { options: { ...defaultRectOptions, ...defaultOptions } })
+        break
+      case CustomMenuEnum.CIRCLE:
+        addCircle(canvasObj.current, { options: { ...defaultCircleOptions, ...defaultOptions } })
+        break
+      case CustomMenuEnum.TRIANGLE:
+        addTriangle(canvasObj.current, { options: { ...defaultTriangleOptions, ...defaultOptions } })
+        break
+      default:
+        break
     }
   }
 
@@ -207,7 +197,7 @@ function App() {
     const offset = 20
 
     if (group) {
-      const newGroup = new fabric.Group([])
+      const clonedObjects: fabric.Object[] = []
 
       // 选择了多个元素
       group._objects.forEach((v) => {
@@ -225,14 +215,13 @@ function App() {
           }
           canvas.add(cloned)
           // 加入到新组中
-          newGroup.add(cloned)
+          clonedObjects.push(cloned)
         })
       })
-      canvas.add(newGroup)
       // 取消当前选中
       canvas.discardActiveObject()
       // 设置选中为新克隆的元素，从新组中取
-      const activeObjects = new fabric.ActiveSelection([...newGroup._objects], { canvas })
+      const activeObjects = new fabric.ActiveSelection(clonedObjects, { canvas })
       canvas.setActiveObject(activeObjects)
       canvas.requestRenderAll()
     } else {
@@ -280,8 +269,6 @@ function App() {
     canvasElement.current!.height = canvasHeight
     canvasElement.current!.style.width = canvasWidth + 'px'
     canvasElement.current!.style.height = canvasHeight + 'px'
-    canvasProperties.current.width = canvasWidth
-    canvasProperties.current.height = canvasHeight
 
     // 初始化
     const fabricCanvas = new fabric.Canvas(canvasElement.current)
@@ -323,7 +310,7 @@ function App() {
       <Space style={{ marginBottom: 12 }}>
         <Upload onChange={changeBgImg} fileList={[]} customRequest={() => {}}>
           <Button icon={<UploadOutlined />} type="primary" ghost>
-            背景图
+            设置背景
           </Button>
         </Upload>
         {!!backgroundImage && (
@@ -332,22 +319,30 @@ function App() {
           </Button>
         )}
         <Button icon={<PlusOutlined />} type="primary" ghost onClick={addDesk}>
-          加桌子
+          桌子
         </Button>
         <Button icon={<PlusOutlined />} type="primary" ghost onClick={addChair}>
-          加椅子
+          椅子
         </Button>
-        <Button icon={<PlusOutlined />} type="primary" ghost onClick={addCircle}>
-          加柱子
+        <Button icon={<PlusOutlined />} type="primary" ghost onClick={addCircleWall}>
+          柱子
         </Button>
-        <Button icon={<PlusOutlined />} type="primary" ghost onClick={addWall}>
-          加墙体
+        <Button icon={<PlusOutlined />} type="primary" ghost onClick={addLineWall}>
+          墙体
         </Button>
-        <Upload onChange={addImage} fileList={[]} customRequest={() => {}}>
+        <Upload onChange={addPicture} fileList={[]} customRequest={() => {}}>
           <Button icon={<PlusOutlined />} type="primary" ghost>
-            加图片
+            图片
           </Button>
         </Upload>
+        <Dropdown menu={{ items: customMenu, onClick: addCustom }}>
+          <Button icon={<PlusOutlined />} type="primary" ghost>
+            <Space>
+              其它
+              <DownOutlined />
+            </Space>
+          </Button>
+        </Dropdown>
         <Popconfirm
           title="清空全部"
           description="确认清空全部内容吗？此操作不可恢复。"

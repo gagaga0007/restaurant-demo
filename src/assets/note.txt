@@ -1,3 +1,5 @@
+  const controlIconSize = 16
+
   const deleteObject = (_eventData: MouseEvent, transform: Transform) => {
     const target = transform.target;
     const canvas = target.canvas;
