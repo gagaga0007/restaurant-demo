@@ -9,7 +9,8 @@ export interface ChangePropertiesProps {
   fillColor: Color
   strokeColor: Color
   strokeWidth: string | number
-  name?: string
+  tableName?: string
+  chairName?: string
   status?: string
 }
 

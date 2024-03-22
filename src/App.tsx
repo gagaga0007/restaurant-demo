@@ -15,9 +15,10 @@ import { addCircle, addImage, addRect, addTriangle, convertFileToBase64 } from '
 import { ChairStatusEnum, CustomMenuEnum, TemplateEnum } from './core/interface.ts'
 import {
   customMenu,
-  DEFAULT_CHAIR_NAME,
-  DEFAULT_STATUS_NAME,
-  DEFAULT_TABLE_NAME,
+  CHAIR_TYPE_VALUE,
+  STATUS_KEY,
+  TABLE_TYPE_VALUE,
+  TYPE_KEY,
   defaultChairColor,
   defaultCircleOptions,
   defaultCircleWallColor,
@@ -76,12 +77,14 @@ function App() {
     const { r, g, b } = defaultTableColor
     const primaryColor = `rgb(${r}, ${g}, ${b})`
     const fillColor = `rgba(${r}, ${g}, ${b}, ${defaultFillAlpha})`
-    const options = {
+    const options: fabric.IRectOptions = {
       ...defaultRectOptions,
       fill: fillColor,
       stroke: primaryColor,
-      // 类型（桌子）
-      name: DEFAULT_TABLE_NAME,
+      // 标识为桌子
+      data: {
+        [TYPE_KEY]: TABLE_TYPE_VALUE,
+      },
     }
     addRect(canvasObj.current, { options })
   }
@@ -94,8 +97,11 @@ function App() {
       ...defaultSemiCircleOptions,
       fill: fillColor,
       stroke: primaryColor,
-      // 类型（椅子）:椅子状态（默认）
-      name: `${DEFAULT_CHAIR_NAME}:${DEFAULT_STATUS_NAME}${ChairStatusEnum.DEFAULT}`,
+      // 标识为椅子，给一个默认状态
+      data: {
+        [TYPE_KEY]: CHAIR_TYPE_VALUE,
+        [STATUS_KEY]: ChairStatusEnum.DEFAULT,
+      },
     }
     addCircle(canvasObj.current, { options })
   }
@@ -149,7 +155,7 @@ function App() {
       fill: `rgba(${defaultTableColor.r}, ${defaultTableColor.g}, ${defaultTableColor.b}, ${defaultFillAlpha})`,
       stroke: `rgb(${defaultTableColor.r}, ${defaultTableColor.g}, ${defaultTableColor.b})`,
       // 标识为桌子
-      name: DEFAULT_TABLE_NAME,
+      data: { [TYPE_KEY]: TABLE_TYPE_VALUE },
     }
 
     const chairOptions = {
@@ -157,7 +163,10 @@ function App() {
       fill: `rgba(${defaultChairColor.r}, ${defaultChairColor.g}, ${defaultChairColor.b}, ${defaultFillAlpha})`,
       stroke: `rgb(${defaultChairColor.r}, ${defaultChairColor.g}, ${defaultChairColor.b})`,
       // 标识为椅子，并给一个默认状态
-      name: `${DEFAULT_CHAIR_NAME}:${DEFAULT_STATUS_NAME}${ChairStatusEnum.DEFAULT}`,
+      data: {
+        [TYPE_KEY]: CHAIR_TYPE_VALUE,
+        [STATUS_KEY]: ChairStatusEnum.DEFAULT,
+      },
     }
 
     if (key === TemplateEnum.TWO) {
@@ -171,7 +180,7 @@ function App() {
     } else if (key === TemplateEnum.FOUR) {
       // 四人桌
       const rect = addRect(canvasObj.current, {
-        options: { ...tableOptions, left: 174, top: 155, name: DEFAULT_TABLE_NAME },
+        options: { ...tableOptions, left: 174, top: 155 },
       })
       const circle1 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 186, top: 135 } })
       const circle2 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 243, top: 135 } })
@@ -181,7 +190,7 @@ function App() {
     } else if (key === TemplateEnum.SIX) {
       // 六人桌
       const rect = addRect(canvasObj.current, {
-        options: { ...tableOptions, left: 362, top: 155, width: 180, name: DEFAULT_TABLE_NAME },
+        options: { ...tableOptions, left: 362, top: 155, width: 180 },
       })
       const circle1 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 374, top: 135 } })
       const circle2 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 431, top: 135 } })
@@ -212,7 +221,7 @@ function App() {
   }
 
   const onDeleteObjects = () => {
-    // 清空选择框，多选时若删除元素，会在画布上留一个选择框
+    // 清空选择框。多选时若删除元素，会在画布上留一个选择框
     canvasObj.current.discardActiveObject()
   }
 

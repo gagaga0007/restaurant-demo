@@ -39,16 +39,6 @@ export const getRandomId = (length = 8) => {
 }
 
 /**
- * 获取元素 name 属性中组合的某个属性值
- * @param name name 属性
- * @param propertyName 属性值
- */
-export const getNameProperties = (name: string, propertyName: string) => {
-  const property = name.split(':').find((v) => v.includes(propertyName))
-  return property?.replace(propertyName, '') ?? ''
-}
-
-/**
  * 添加矩形
  * @param ctx canvas 对象
  * @param options 配置

@@ -40,10 +40,12 @@ export const templateMenu = [
   },
 ]
 
-export const DEFAULT_NAME_NAME = '__NAME__'
-export const DEFAULT_STATUS_NAME = '__STATUS__'
-export const DEFAULT_TABLE_NAME = '__TABLE__'
-export const DEFAULT_CHAIR_NAME = '__CHAIR__'
+export const TYPE_KEY = 'type'
+export const NAME_KEY = 'name'
+export const STATUS_KEY = 'status'
+
+export const TABLE_TYPE_VALUE = 'table'
+export const CHAIR_TYPE_VALUE = 'chair'
 
 export const defaultFillAlpha = 0.1
 
