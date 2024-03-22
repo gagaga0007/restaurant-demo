@@ -17,13 +17,14 @@ import { fabric } from 'fabric'
 import { useEffect, useMemo, useState } from 'react'
 import { ContainerOutlined, CopyOutlined, DeleteOutlined, DownOutlined, SettingOutlined } from '@ant-design/icons'
 import {
-  chairStatusOptions,
   CHAIR_TYPE_VALUE,
+  chairStatusOptions,
+  defaultFillAlpha,
   NAME_KEY,
+  PARENT_ID_KEY,
   STATUS_KEY,
   TABLE_TYPE_VALUE,
   TYPE_KEY,
-  defaultFillAlpha,
 } from '../core/options.tsx'
 
 interface Props {
@@ -50,23 +51,23 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
   const onChangeObjectProperties = async (data: ChangePropertiesProps) => {
     try {
       selectedObjects.forEach((v) => {
-        // 填充颜色
+        /** 填充颜色 */
         if (data.fillColor) {
           const { r, g, b, a } = data.fillColor.toRgb()
           v.set('fill', `rgba(${r}, ${g}, ${b}, ${a})`)
         }
-        // 边框颜色
+        /** 边框颜色 */
         if (data.strokeColor) {
           const { r, g, b, a } = data.strokeColor.toRgb()
           v.set('stroke', `rgba(${r}, ${g}, ${b}, ${a})`)
         }
-        // 边框宽度
+        /** 边框宽度 */
         v.set('strokeWidth', Number(data.strokeWidth))
         // 刷新画布
         v.canvas?.renderAll()
       })
 
-      // 桌位名
+      /** 桌位名 */
       if (isSingleTable || isMultipleHasSingleTable) {
         const tableItem = isSingleTable
           ? selectedObjects[0] // 单选 table
@@ -76,13 +77,40 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
         tableItem.set('data', { ...tableItem.data, [NAME_KEY]: data.tableName })
         // 更新页面显示的桌位名
         setTitleName(data.tableName)
+
+        // 更新桌位名的文字
+        const canvas = tableItem.canvas
+        const textObjects = canvas.getObjects('text')
+        // 找出绑定到当前桌子的文字对象
+        const textItem = textObjects.find((v) => v.data?.[PARENT_ID_KEY] === tableItem.data?.id)
+        if (textItem) {
+          // 如果有，修改文字内容
+          // @ts-ignore
+          textItem.set('text', data.tableName || '')
+          canvas.requestRenderAll()
+        }
       }
-      // 椅子名
+
+      /** 椅子名 */
       if (isSingleChair) {
         const chairItem = selectedObjects[0]
 
+        // 设置自定义 data 中的 name
         chairItem.set('data', { ...chairItem.data, [NAME_KEY]: data.chairName })
+        // 更新页面显示的座位号
         setTitleName(data.chairName)
+
+        // // 显示到对应的椅子的位置
+        // const canvas = chairItem.canvas
+        // const textObjects = canvas.getObjects('text')
+        // // 找出绑定到当前椅子的文字对象
+        // const textItem = textObjects.find((v) => v.data?.[PARENT_ID_KEY] === chairItem.data?.id)
+        // if (textItem) {
+        //   // 修改文字内容
+        //   // @ts-ignore
+        //   textItem.set('text', data.chairName || '')
+        //   canvas.requestRenderAll()
+        // }
       }
 
       await message.success('修改成功')
@@ -173,8 +201,31 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
   }
 
   const deleteObjects = () => {
+    // 画布中的桌子、椅子以及他们的文字
+    const canvas = selectedObjects[0].canvas
+    if (!canvas) return
+    const tableAndChairObjects = canvas
+      .getObjects()
+      .filter((v) => v.data?.[TYPE_KEY] === TABLE_TYPE_VALUE || v.data?.[TYPE_KEY] === CHAIR_TYPE_VALUE)
+    const textObjects = canvas.getObjects('text').filter((v) => v.data?.[PARENT_ID_KEY])
+
     selectedObjects.forEach((v) => {
       const canvas = v.canvas
+
+      // 如果是桌子或椅子，一并删除他们的文字
+      if (v.data?.[TYPE_KEY] === TABLE_TYPE_VALUE || v.data?.[TYPE_KEY] === CHAIR_TYPE_VALUE) {
+        // 文字对象
+        const text = textObjects.find((item) => item.data?.[PARENT_ID_KEY] === v.data?.id)
+        // 如果文字对象已经被选择了就不删除（当前文字是否在 selectedObjects 中，通过 parent_id 判断）
+        // 没有则删除
+        if (
+          !selectedObjects.find(
+            (item) => !!item.data?.[PARENT_ID_KEY] && item.data?.[PARENT_ID_KEY] === text.data?.[PARENT_ID_KEY],
+          )
+        ) {
+          canvas.remove(text)
+        }
+      }
       canvas.remove(v)
       canvas.requestRenderAll()
     })

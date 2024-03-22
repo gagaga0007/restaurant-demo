@@ -11,14 +11,11 @@ import {
   UploadOutlined,
 } from '@ant-design/icons'
 import { UploadChangeParam } from 'antd/lib/upload'
-import { addCircle, addImage, addRect, addTriangle, convertFileToBase64 } from './core/util.ts'
+import { addCircle, addImage, addRect, addText, addTriangle, convertFileToBase64, getRandomId } from './core/util.ts'
 import { ChairStatusEnum, CustomMenuEnum, TemplateEnum } from './core/interface.ts'
 import {
-  customMenu,
   CHAIR_TYPE_VALUE,
-  STATUS_KEY,
-  TABLE_TYPE_VALUE,
-  TYPE_KEY,
+  customMenu,
   defaultChairColor,
   defaultCircleOptions,
   defaultCircleWallColor,
@@ -30,7 +27,12 @@ import {
   defaultSemiCircleOptions,
   defaultTableColor,
   defaultTriangleOptions,
+  ID_KEY,
+  PARENT_ID_KEY,
+  STATUS_KEY,
+  TABLE_TYPE_VALUE,
   templateMenu,
+  TYPE_KEY,
 } from './core/options.tsx'
 import { EditForm } from './components/EditForm.tsx'
 
@@ -73,37 +75,83 @@ function App() {
     }
   }
 
-  const addTable = () => {
+  const addTable = (options: fabric.IRectOptions = {}, disableActiveOnCreate?: boolean) => {
     const { r, g, b } = defaultTableColor
     const primaryColor = `rgb(${r}, ${g}, ${b})`
     const fillColor = `rgba(${r}, ${g}, ${b}, ${defaultFillAlpha})`
-    const options: fabric.IRectOptions = {
+    const id = getRandomId()
+    // 添加桌子
+    const rectOptions: fabric.IRectOptions = {
       ...defaultRectOptions,
       fill: fillColor,
       stroke: primaryColor,
+      ...options,
       // 标识为桌子
       data: {
         [TYPE_KEY]: TABLE_TYPE_VALUE,
+        [ID_KEY]: id,
       },
     }
-    addRect(canvasObj.current, { options })
+    const rect = addRect(canvasObj.current, { options: rectOptions, disableActiveOnCreate: true })
+
+    // 默认给一个文字的占位（用于显示桌位名）
+    const textOptions: fabric.ITextOptions = {
+      left: rectOptions.left + 20,
+      top: rectOptions.top,
+      fontSize: 16,
+      data: { [PARENT_ID_KEY]: id },
+    }
+    const text = addText(canvasObj.current, '', { options: textOptions, disableActiveOnCreate: true })
+    text.set('top', text.top + rect.height / 2 - text.height / 2)
+    // 设置到最下层，防止覆盖
+    text.sendToBack()
+
+    if (!disableActiveOnCreate) {
+      // 选中新创建的项
+      const activeObjects = new fabric.ActiveSelection([rect, text], { canvas: canvasObj.current })
+      canvasObj.current.setActiveObject(activeObjects)
+    }
+    return [rect, text]
   }
 
-  const addChair = () => {
+  const addChair = (options: fabric.ICircleOptions = {}, disableActiveOnCreate?: boolean) => {
     const { r, g, b } = defaultChairColor
     const primaryColor = `rgb(${r}, ${g}, ${b})`
     const fillColor = `rgba(${r}, ${g}, ${b}, ${defaultFillAlpha})`
-    const options = {
+    const id = getRandomId()
+    // 添加椅子
+    const circleOptions = {
       ...defaultSemiCircleOptions,
       fill: fillColor,
       stroke: primaryColor,
+      ...options,
       // 标识为椅子，给一个默认状态
       data: {
         [TYPE_KEY]: CHAIR_TYPE_VALUE,
         [STATUS_KEY]: ChairStatusEnum.DEFAULT,
+        [ID_KEY]: id,
       },
     }
-    addCircle(canvasObj.current, { options })
+    const circle = addCircle(canvasObj.current, { options: circleOptions, disableActiveOnCreate: true })
+    //
+    // // 默认给一个文字的占位（用于显示座位号）
+    // const textOptions: fabric.ITextOptions = {
+    //   left: circleOptions.left + 10,
+    //   top: circleOptions.top,
+    //   fontSize: 12,
+    //   data: { [PARENT_ID_KEY]: id },
+    // }
+    // const text = addText(canvasObj.current, '', { options: textOptions, disableActiveOnCreate: true })
+    // text.set('top', text.top + circle.height / 4 - text.height / 2)
+    // // 设置到最下层，防止覆盖
+    // text.sendToBack()
+
+    if (!disableActiveOnCreate) {
+      // 选中新创建的项
+      const activeObjects = new fabric.ActiveSelection([circle], { canvas: canvasObj.current })
+      canvasObj.current.setActiveObject(activeObjects)
+    }
+    return [circle]
   }
 
   const addCircleWall = () => {
@@ -150,55 +198,30 @@ function App() {
   const addTemplate = (key: string) => {
     const newObjects: fabric.Object[] = []
 
-    const tableOptions = {
-      ...defaultRectOptions,
-      fill: `rgba(${defaultTableColor.r}, ${defaultTableColor.g}, ${defaultTableColor.b}, ${defaultFillAlpha})`,
-      stroke: `rgb(${defaultTableColor.r}, ${defaultTableColor.g}, ${defaultTableColor.b})`,
-      // 标识为桌子
-      data: { [TYPE_KEY]: TABLE_TYPE_VALUE },
-    }
-
-    const chairOptions = {
-      ...defaultSemiCircleOptions,
-      fill: `rgba(${defaultChairColor.r}, ${defaultChairColor.g}, ${defaultChairColor.b}, ${defaultFillAlpha})`,
-      stroke: `rgb(${defaultChairColor.r}, ${defaultChairColor.g}, ${defaultChairColor.b})`,
-      // 标识为椅子，并给一个默认状态
-      data: {
-        [TYPE_KEY]: CHAIR_TYPE_VALUE,
-        [STATUS_KEY]: ChairStatusEnum.DEFAULT,
-      },
-    }
-
     if (key === TemplateEnum.TWO) {
       // 双人桌
-      const rect = addRect(canvasObj.current, {
-        options: { ...tableOptions, left: 44, top: 155, width: 70, height: 70 },
-      })
-      const circle1 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 60, top: 135 } })
-      const circle2 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 101, top: 247, angle: 180 } })
-      newObjects.push(rect, circle1, circle2)
+      const table = addTable({ left: 44, top: 155, width: 70, height: 70 }, true)
+      const chair1 = addChair({ left: 60, top: 135 }, true)
+      const chair2 = addChair({ left: 101, top: 247, angle: 180 }, true)
+      newObjects.push(...table, ...chair1, ...chair2)
     } else if (key === TemplateEnum.FOUR) {
       // 四人桌
-      const rect = addRect(canvasObj.current, {
-        options: { ...tableOptions, left: 174, top: 155 },
-      })
-      const circle1 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 186, top: 135 } })
-      const circle2 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 243, top: 135 } })
-      const circle3 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 229, top: 248, angle: 180 } })
-      const circle4 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 285, top: 248, angle: 180 } })
-      newObjects.push(rect, circle1, circle2, circle3, circle4)
+      const table = addTable({ left: 174, top: 155 }, true)
+      const chair1 = addChair({ left: 186, top: 135 }, true)
+      const chair2 = addChair({ left: 243, top: 135 }, true)
+      const chair3 = addChair({ left: 229, top: 248, angle: 180 }, true)
+      const chair4 = addChair({ left: 285, top: 248, angle: 180 }, true)
+      newObjects.push(...table, ...chair1, ...chair2, ...chair3, ...chair4)
     } else if (key === TemplateEnum.SIX) {
       // 六人桌
-      const rect = addRect(canvasObj.current, {
-        options: { ...tableOptions, left: 362, top: 155, width: 180 },
-      })
-      const circle1 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 374, top: 135 } })
-      const circle2 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 431, top: 135 } })
-      const circle3 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 488, top: 135 } })
-      const circle4 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 415, top: 248, angle: 180 } })
-      const circle5 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 472, top: 248, angle: 180 } })
-      const circle6 = addCircle(canvasObj.current, { options: { ...chairOptions, left: 529, top: 248, angle: 180 } })
-      newObjects.push(rect, circle1, circle2, circle3, circle4, circle5, circle6)
+      const table = addTable({ left: 362, top: 155, width: 180 }, true)
+      const chair1 = addChair({ left: 374, top: 135 }, true)
+      const chair2 = addChair({ left: 431, top: 135 }, true)
+      const chair3 = addChair({ left: 488, top: 135 }, true)
+      const chair4 = addChair({ left: 415, top: 248, angle: 180 }, true)
+      const chair5 = addChair({ left: 472, top: 248, angle: 180 }, true)
+      const chair6 = addChair({ left: 529, top: 248, angle: 180 }, true)
+      newObjects.push(...table, ...chair1, ...chair2, ...chair3, ...chair4, ...chair5, ...chair6)
     }
 
     // 选中生成的图形
@@ -245,6 +268,8 @@ function App() {
     // 监听选择元素 初始/更新/取消
     fabricCanvas.on('selection:created', (e) => {
       onSelectedObjectChange(e.selected ?? [])
+
+      console.log(e.selected)
     })
 
     fabricCanvas.on('selection:updated', (e) => {
@@ -288,9 +313,17 @@ function App() {
             取消背景
           </Button>
         )}
-        <Button icon={<PlusOutlined />} type="primary" ghost onClick={addTable}>
-          桌子
-        </Button>
+        <Dropdown menu={{ items: templateMenu, onClick: (e) => addTemplate(e.key) }}>
+          <Button icon={<ContainerOutlined />} type="primary" ghost>
+            <Space>
+              模板
+              <DownOutlined />
+            </Space>
+          </Button>
+        </Dropdown>
+        {/*<Button icon={<PlusOutlined />} type="primary" ghost onClick={addTable}>*/}
+        {/*  桌子*/}
+        {/*</Button>*/}
         <Button icon={<PlusOutlined />} type="primary" ghost onClick={addChair}>
           椅子
         </Button>
@@ -308,15 +341,7 @@ function App() {
         <Dropdown menu={{ items: customMenu, onClick: (e) => addCustom(e.key) }}>
           <Button icon={<AppstoreAddOutlined />} type="primary" ghost>
             <Space>
-              其它
-              <DownOutlined />
-            </Space>
-          </Button>
-        </Dropdown>
-        <Dropdown menu={{ items: templateMenu, onClick: (e) => addTemplate(e.key) }}>
-          <Button icon={<ContainerOutlined />} type="primary" ghost>
-            <Space>
-              模板
+              图形
               <DownOutlined />
             </Space>
           </Button>

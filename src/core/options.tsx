@@ -40,12 +40,17 @@ export const templateMenu = [
   },
 ]
 
+export const STORAGE_KEY = 'restaurant-demo-storage-data-key'
+
 export const TYPE_KEY = 'type'
 export const NAME_KEY = 'name'
 export const STATUS_KEY = 'status'
+export const ID_KEY = 'id'
+export const PARENT_ID_KEY = 'parent_name'
 
 export const TABLE_TYPE_VALUE = 'table'
 export const CHAIR_TYPE_VALUE = 'chair'
+export const TEXT_TYPE_VALUE = 'text'
 
 export const defaultFillAlpha = 0.1
 

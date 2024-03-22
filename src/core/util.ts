@@ -27,7 +27,7 @@ export const convertFileToBase64 = async (file: File): Promise<string> => {
  * 生成随机字符串
  * @param length
  */
-export const getRandomId = (length = 8) => {
+export const getRandomId = (length = 12) => {
   const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
   let code = ''
   for (let i = 0; i < length; i++) {
@@ -42,12 +42,21 @@ export const getRandomId = (length = 8) => {
  * 添加矩形
  * @param ctx canvas 对象
  * @param options 配置
+ * @param disableActiveOnCreate 禁用在创建后自动选择该元素
  */
-export const addRect = (ctx: fabric.Canvas, { options = defaultRectOptions }: { options?: IRectOptions } = {}) => {
+export const addRect = (
+  ctx: fabric.Canvas,
+  {
+    options = defaultRectOptions,
+    disableActiveOnCreate,
+  }: { options?: IRectOptions; disableActiveOnCreate?: boolean } = {},
+) => {
   const rect = new fabric.Rect({ ...options })
   ctx.add(rect)
-  ctx.discardActiveObject()
-  ctx.setActiveObject(rect)
+  if (!disableActiveOnCreate) {
+    ctx.discardActiveObject()
+    ctx.setActiveObject(rect)
+  }
 
   return rect
 }
@@ -56,15 +65,21 @@ export const addRect = (ctx: fabric.Canvas, { options = defaultRectOptions }: { 
  * 添加圆形
  * @param ctx canvas 对象
  * @param options 配置
+ * @param disableActiveOnCreate 禁用在创建后自动选择该元素
  */
 export const addCircle = (
   ctx: fabric.Canvas,
-  { options = defaultSemiCircleOptions }: { options?: ICircleOptions } = {},
+  {
+    options = defaultSemiCircleOptions,
+    disableActiveOnCreate,
+  }: { options?: ICircleOptions; disableActiveOnCreate?: boolean } = {},
 ) => {
   const circle = new fabric.Circle({ ...options })
   ctx.add(circle)
-  ctx.discardActiveObject()
-  ctx.setActiveObject(circle)
+  if (!disableActiveOnCreate) {
+    ctx.discardActiveObject()
+    ctx.setActiveObject(circle)
+  }
 
   return circle
 }
@@ -73,15 +88,21 @@ export const addCircle = (
  * 添加三角形
  * @param ctx canvas 对象
  * @param options 配置
+ * @param disableActiveOnCreate 禁用在创建后自动选择该元素
  */
 export const addTriangle = (
   ctx: fabric.Canvas,
-  { options = defaultTriangleOptions }: { options?: ITriangleOptions } = {},
+  {
+    options = defaultTriangleOptions,
+    disableActiveOnCreate,
+  }: { options?: ITriangleOptions; disableActiveOnCreate?: boolean } = {},
 ) => {
   const triangle = new fabric.Triangle({ ...options })
   ctx.add(triangle)
-  ctx.discardActiveObject()
-  ctx.setActiveObject(triangle)
+  if (!disableActiveOnCreate) {
+    ctx.discardActiveObject()
+    ctx.setActiveObject(triangle)
+  }
 
   return triangle
 }
@@ -120,31 +141,19 @@ export const addImage = async (ctx: fabric.Canvas, file?: File | string) => {
  * @param ctx canvas 对象
  * @param text 文字内容
  * @param options 配置
+ * @param disableActiveOnCreate 禁用在创建后自动选择该元素
  */
-export const addText = (ctx: fabric.Canvas, text: string, { options }: { options?: fabric.ITextOptions } = {}) => {
-  const fText = new fabric.Text(text, { ...options })
-  ctx.add(fText)
-  ctx.discardActiveObject()
-  ctx.setActiveObject(fText)
-
-  return fText
-}
-
-/**
- * 添加文字盒子
- * @param ctx canvas 对象
- * @param text 文字内容
- * @param options 配置
- */
-export const addTextBox = (
+export const addText = (
   ctx: fabric.Canvas,
   text: string,
-  { options }: { options?: fabric.ITextboxOptions } = {},
+  { options, disableActiveOnCreate }: { options?: fabric.ITextOptions; disableActiveOnCreate?: boolean } = {},
 ) => {
-  const textBox = new fabric.Textbox(text, { ...options })
-  ctx.add(textBox)
-  ctx.discardActiveObject()
-  ctx.setActiveObject(textBox)
+  const fText = new fabric.Text(text, { ...options })
+  ctx.add(fText)
+  if (!disableActiveOnCreate) {
+    ctx.discardActiveObject()
+    ctx.setActiveObject(fText)
+  }
 
-  return textBox
+  return fText
 }
