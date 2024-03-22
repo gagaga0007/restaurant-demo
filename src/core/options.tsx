@@ -46,12 +46,13 @@ export const TYPE_KEY = 'type'
 export const NAME_KEY = 'name'
 export const STATUS_KEY = 'status'
 export const ID_KEY = 'id'
-export const PARENT_ID_KEY = 'parent_name'
+export const PARENT_ID_KEY = 'parent_id'
 
 export const TABLE_TYPE_VALUE = 'table'
 export const CHAIR_TYPE_VALUE = 'chair'
-export const TEXT_TYPE_VALUE = 'text'
+export const TABLE_TEXT_TYPE_VALUE = 'table_text'
 
+export const defaultTableTextOffset = 20
 export const defaultFillAlpha = 0.1
 
 export const defaultTableColor = {
@@ -141,6 +142,10 @@ export const defaultTriangleOptions: fabric.ITriangleOptions = {
 export const defaultImageOptions: fabric.IImageOptions = {
   left: 200,
   top: 200,
+}
+
+export const defaultTextOptions: fabric.ITextOptions = {
+  fontSize: 16,
 }
 
 /**

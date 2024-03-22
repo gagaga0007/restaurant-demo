@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Button, Dropdown, Popconfirm, Space, Upload } from 'antd'
+import { Button, Col, Dropdown, Popconfirm, Row, Space, Upload } from 'antd'
 import { fabric } from 'fabric'
 import {
   AppstoreAddOutlined,
@@ -7,7 +7,9 @@ import {
   ContainerOutlined,
   DeleteOutlined,
   DownOutlined,
+  ImportOutlined,
   PlusOutlined,
+  SaveOutlined,
   UploadOutlined,
 } from '@ant-design/icons'
 import { UploadChangeParam } from 'antd/lib/upload'
@@ -31,8 +33,11 @@ import {
   PARENT_ID_KEY,
   STATUS_KEY,
   TABLE_TYPE_VALUE,
+  defaultTableTextOffset,
   templateMenu,
   TYPE_KEY,
+  TABLE_TEXT_TYPE_VALUE,
+  defaultTextOptions,
 } from './core/options.tsx'
 import { EditForm } from './components/EditForm.tsx'
 
@@ -96,15 +101,18 @@ function App() {
 
     // 默认给一个文字的占位（用于显示桌位名）
     const textOptions: fabric.ITextOptions = {
-      left: rectOptions.left + 20,
+      ...defaultTextOptions,
+      left: rectOptions.left + defaultTableTextOffset,
       top: rectOptions.top,
-      fontSize: 16,
-      data: { [PARENT_ID_KEY]: id },
+      data: {
+        [TYPE_KEY]: TABLE_TEXT_TYPE_VALUE,
+        [PARENT_ID_KEY]: id,
+      },
     }
     const text = addText(canvasObj.current, '', { options: textOptions, disableActiveOnCreate: true })
     text.set('top', text.top + rect.height / 2 - text.height / 2)
-    // 设置到最下层，防止覆盖
-    text.sendToBack()
+    // // 设置到最下层，防止覆盖 TODO: 设置颜色会被盖住
+    // text.sendToBack()
 
     if (!disableActiveOnCreate) {
       // 选中新创建的项
@@ -133,18 +141,6 @@ function App() {
       },
     }
     const circle = addCircle(canvasObj.current, { options: circleOptions, disableActiveOnCreate: true })
-    //
-    // // 默认给一个文字的占位（用于显示座位号）
-    // const textOptions: fabric.ITextOptions = {
-    //   left: circleOptions.left + 10,
-    //   top: circleOptions.top,
-    //   fontSize: 12,
-    //   data: { [PARENT_ID_KEY]: id },
-    // }
-    // const text = addText(canvasObj.current, '', { options: textOptions, disableActiveOnCreate: true })
-    // text.set('top', text.top + circle.height / 4 - text.height / 2)
-    // // 设置到最下层，防止覆盖
-    // text.sendToBack()
 
     if (!disableActiveOnCreate) {
       // 选中新创建的项
@@ -248,6 +244,12 @@ function App() {
     canvasObj.current.discardActiveObject()
   }
 
+  const onSaveData = () => {}
+
+  const onImportData = () => {}
+
+  const onDeleteData = () => {}
+
   const updateCanvasContext = (canvas: fabric.Canvas | null) => {
     canvasObj.current = canvas
   }
@@ -302,64 +304,91 @@ function App() {
         overflowX: 'hidden',
       }}
     >
-      <Space style={{ marginBottom: 12 }}>
-        <Upload onChange={changeBgImg} fileList={[]} customRequest={() => {}}>
-          <Button icon={<UploadOutlined />} type="primary" ghost>
-            设置背景
-          </Button>
-        </Upload>
-        {!!backgroundImage && (
-          <Button icon={<CloseCircleOutlined />} type="primary" ghost danger onClick={() => changeBgImg()}>
-            取消背景
-          </Button>
-        )}
-        <Dropdown menu={{ items: templateMenu, onClick: (e) => addTemplate(e.key) }}>
-          <Button icon={<ContainerOutlined />} type="primary" ghost>
-            <Space>
-              模板
-              <DownOutlined />
-            </Space>
-          </Button>
-        </Dropdown>
-        {/*<Button icon={<PlusOutlined />} type="primary" ghost onClick={addTable}>*/}
-        {/*  桌子*/}
-        {/*</Button>*/}
-        <Button icon={<PlusOutlined />} type="primary" ghost onClick={addChair}>
-          椅子
-        </Button>
-        <Button icon={<PlusOutlined />} type="primary" ghost onClick={addCircleWall}>
-          柱子
-        </Button>
-        <Button icon={<PlusOutlined />} type="primary" ghost onClick={addLineWall}>
-          墙体
-        </Button>
-        <Upload onChange={addPicture} fileList={[]} customRequest={() => {}}>
-          <Button icon={<PlusOutlined />} type="primary" ghost>
-            图片
-          </Button>
-        </Upload>
-        <Dropdown menu={{ items: customMenu, onClick: (e) => addCustom(e.key) }}>
-          <Button icon={<AppstoreAddOutlined />} type="primary" ghost>
-            <Space>
-              图形
-              <DownOutlined />
-            </Space>
-          </Button>
-        </Dropdown>
-        <Popconfirm
-          title="清空全部"
-          description="确认清空全部内容吗？此操作不可恢复。"
-          placement="bottom"
-          okText="确定"
-          cancelText="取消"
-          icon={<DeleteOutlined style={{ color: 'red' }} />}
-          onConfirm={clearAll}
-        >
-          <Button icon={<DeleteOutlined />} type="primary" ghost danger>
-            清空全部
-          </Button>
-        </Popconfirm>
-      </Space>
+      <Row>
+        <Col flex="auto">
+          <Space style={{ marginBottom: 12 }}>
+            <Dropdown menu={{ items: templateMenu, onClick: (e) => addTemplate(e.key) }}>
+              <Button icon={<ContainerOutlined />} type="primary" ghost>
+                <Space>
+                  模板
+                  <DownOutlined />
+                </Space>
+              </Button>
+            </Dropdown>
+            <Upload onChange={changeBgImg} fileList={[]} customRequest={() => {}}>
+              <Button icon={<UploadOutlined />} type="primary" ghost>
+                设置背景
+              </Button>
+            </Upload>
+            {!!backgroundImage && (
+              <Button icon={<CloseCircleOutlined />} type="primary" ghost danger onClick={() => changeBgImg()}>
+                取消背景
+              </Button>
+            )}
+            <Button icon={<PlusOutlined />} type="primary" ghost onClick={addTable}>
+              桌子
+            </Button>
+            <Button icon={<PlusOutlined />} type="primary" ghost onClick={addChair}>
+              椅子
+            </Button>
+            <Button icon={<PlusOutlined />} type="primary" ghost onClick={addCircleWall}>
+              柱子
+            </Button>
+            <Button icon={<PlusOutlined />} type="primary" ghost onClick={addLineWall}>
+              墙体
+            </Button>
+            <Upload onChange={addPicture} fileList={[]} customRequest={() => {}}>
+              <Button icon={<PlusOutlined />} type="primary" ghost>
+                图片
+              </Button>
+            </Upload>
+            <Dropdown menu={{ items: customMenu, onClick: (e) => addCustom(e.key) }}>
+              <Button icon={<AppstoreAddOutlined />} type="primary" ghost>
+                <Space>
+                  图形
+                  <DownOutlined />
+                </Space>
+              </Button>
+            </Dropdown>
+            <Popconfirm
+              title="清空全部"
+              description="确认清空全部内容吗？此操作不可恢复。"
+              placement="bottom"
+              okText="确定"
+              cancelText="取消"
+              icon={<DeleteOutlined style={{ color: 'red' }} />}
+              onConfirm={clearAll}
+            >
+              <Button icon={<DeleteOutlined />} type="primary" ghost danger>
+                清空全部
+              </Button>
+            </Popconfirm>
+          </Space>
+        </Col>
+        <Col flex="none">
+          <Space>
+            <Button icon={<SaveOutlined />} type="primary" onClick={onSaveData}>
+              保存
+            </Button>
+            <Button icon={<ImportOutlined />} type="primary" ghost onClick={onImportData}>
+              导入
+            </Button>
+            <Popconfirm
+              title="清空浏览器保存的数据"
+              description="确认清空浏览器保存的数据吗？此操作不可恢复。"
+              placement="bottomLeft"
+              okText="确定"
+              cancelText="取消"
+              icon={<DeleteOutlined style={{ color: 'red' }} />}
+              onConfirm={onDeleteData}
+            >
+              <Button icon={<DeleteOutlined />} type="primary" ghost danger>
+                清除缓存
+              </Button>
+            </Popconfirm>
+          </Space>
+        </Col>
+      </Row>
 
       <div style={{ flex: 1, display: 'flex' }}>
         <div

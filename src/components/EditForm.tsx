@@ -20,12 +20,15 @@ import {
   CHAIR_TYPE_VALUE,
   chairStatusOptions,
   defaultFillAlpha,
+  ID_KEY,
   NAME_KEY,
   PARENT_ID_KEY,
   STATUS_KEY,
   TABLE_TYPE_VALUE,
+  TABLE_TEXT_TYPE_VALUE,
   TYPE_KEY,
 } from '../core/options.tsx'
+import { getRandomId } from '../core/util.ts'
 
 interface Props {
   selectedObjects: fabric.Object[]
@@ -51,6 +54,9 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
   const onChangeObjectProperties = async (data: ChangePropertiesProps) => {
     try {
       selectedObjects.forEach((v) => {
+        // 如果是文字，跳过
+        if (v.type === 'text') return
+
         /** 填充颜色 */
         if (data.fillColor) {
           const { r, g, b, a } = data.fillColor.toRgb()
@@ -99,18 +105,6 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
         chairItem.set('data', { ...chairItem.data, [NAME_KEY]: data.chairName })
         // 更新页面显示的座位号
         setTitleName(data.chairName)
-
-        // // 显示到对应的椅子的位置
-        // const canvas = chairItem.canvas
-        // const textObjects = canvas.getObjects('text')
-        // // 找出绑定到当前椅子的文字对象
-        // const textItem = textObjects.find((v) => v.data?.[PARENT_ID_KEY] === chairItem.data?.id)
-        // if (textItem) {
-        //   // 修改文字内容
-        //   // @ts-ignore
-        //   textItem.set('text', data.chairName || '')
-        //   canvas.requestRenderAll()
-        // }
       }
 
       await message.success('修改成功')
@@ -153,67 +147,91 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
 
     const offset = 20
 
+    const activeObjects: fabric.Object[] = []
+
+    const clonedTableIdList: { oldId: string; newId: string }[] = []
+
     if (group) {
       // 有 group，是选择了多个元素
-      const clonedObjects: fabric.Object[] = []
-
       group._objects.forEach((v) => {
         v.clone((cloned: fabric.Object) => {
+          // 新 id
+          const newId = getRandomId()
+
           if (cloned.type === 'image') {
             // group 中，图片 left、top 不需要计算，基于原始元素正常处理
             cloned.left = v.left + offset
             cloned.top = v.top + offset
-            cloned.data = { ...v.data }
+            cloned.data = { ...v.data, [ID_KEY]: v.data[ID_KEY] ? newId : undefined }
           } else {
             // group 中，图形元素 left、top 的计算问题：
             // https://stackoverflow.com/questions/71356612/why-top-and-left-properties-become-negative-after-selection-fabricjs
             // https://stackoverflow.com/questions/29829475/how-to-get-the-canvas-relative-position-of-an-object-that-is-in-a-group
-            cloned.left = v.left + group.left + group.width / 2 + offset
-            cloned.top = v.top + group.top + group.height / 2 + offset
-            cloned.data = { ...v.data }
+            const left = v.left + group.left + group.width / 2 + offset
+            const top = v.top + group.top + group.height / 2 + offset
+            cloned.left = left
+            cloned.top = top
+            cloned.data = { ...v.data, [ID_KEY]: v.data[ID_KEY] ? newId : undefined }
+
+            // 如果是桌子，把以前的 id 和新 id 暂存一下
+            if (item.data?.[TYPE_KEY] === TABLE_TYPE_VALUE) {
+              clonedTableIdList.push({ oldId: v.data?.[ID_KEY], newId })
+            }
+
+            // 添加到画布
+            canvas.add(cloned)
+            activeObjects.push(cloned)
           }
-          canvas.add(cloned)
-          // 加入到新组中
-          clonedObjects.push(cloned)
         })
       })
-      // 取消当前选中
-      canvas.discardActiveObject()
-      // 设置选中为新克隆的元素，从新组中取
-      const activeObjects = new fabric.ActiveSelection(clonedObjects, { canvas })
-      canvas.setActiveObject(activeObjects)
-      // 刷新画布
-      canvas.requestRenderAll()
     } else {
+      // 新 id
+      const newId = getRandomId()
+
       // 选择的是单个元素
       item.clone((cloned: fabric.Object) => {
         cloned.left += offset
         cloned.top += offset
-        cloned.data = { ...item.data }
+        cloned.data = { ...item.data, [ID_KEY]: item.data[ID_KEY] ? newId : undefined }
+        // 添加到画布
         canvas.add(cloned)
-        // 取消当前选中
-        canvas.discardActiveObject()
-        // 设置选中为新克隆的元素
-        canvas.setActiveObject(cloned)
-        setSelectedObjects([cloned])
+        activeObjects.push(cloned)
+
+        // 如果是桌子，把以前的 id 和新 id 暂存一下
+        if (item.data?.[TYPE_KEY] === TABLE_TYPE_VALUE) {
+          clonedTableIdList.push({ oldId: item.data?.[ID_KEY], newId })
+        }
       })
     }
+
+    // 循环新克隆出来的元素列表，如果是桌子的文字，根据暂存的桌子 id 列表重新赋值一下新的 id
+    activeObjects.forEach((v) => {
+      if (v.data?.[TYPE_KEY] === TABLE_TEXT_TYPE_VALUE) {
+        v.data[PARENT_ID_KEY] = clonedTableIdList.find((d) => d.oldId === v.data[PARENT_ID_KEY])?.newId
+      }
+    })
+
+    // 取消当前选中
+    canvas.discardActiveObject()
+    // 设置选中为新克隆的元素，从新组中取
+    const activeSelection = new fabric.ActiveSelection(activeObjects, { canvas })
+    canvas.setActiveObject(activeSelection)
+    // 刷新画布
+    canvas.requestRenderAll()
+    setSelectedObjects(activeObjects)
   }
 
   const deleteObjects = () => {
-    // 画布中的桌子、椅子以及他们的文字
+    // 画布中桌子的文字
     const canvas = selectedObjects[0].canvas
     if (!canvas) return
-    const tableAndChairObjects = canvas
-      .getObjects()
-      .filter((v) => v.data?.[TYPE_KEY] === TABLE_TYPE_VALUE || v.data?.[TYPE_KEY] === CHAIR_TYPE_VALUE)
-    const textObjects = canvas.getObjects('text').filter((v) => v.data?.[PARENT_ID_KEY])
+    const textObjects = canvas.getObjects('text').filter((v) => v.data && v.data[TYPE_KEY] === TABLE_TEXT_TYPE_VALUE)
 
     selectedObjects.forEach((v) => {
       const canvas = v.canvas
 
-      // 如果是桌子或椅子，一并删除他们的文字
-      if (v.data?.[TYPE_KEY] === TABLE_TYPE_VALUE || v.data?.[TYPE_KEY] === CHAIR_TYPE_VALUE) {
+      // 如果是桌子，一并删除他们的文字
+      if (v.data?.[TYPE_KEY] === TABLE_TYPE_VALUE) {
         // 文字对象
         const text = textObjects.find((item) => item.data?.[PARENT_ID_KEY] === v.data?.id)
         // 如果文字对象已经被选择了就不删除（当前文字是否在 selectedObjects 中，通过 parent_id 判断）
