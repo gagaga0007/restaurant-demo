@@ -162,7 +162,7 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
             // group 中，图片 left、top 不需要计算，基于原始元素正常处理
             cloned.left = v.left + offset
             cloned.top = v.top + offset
-            cloned.data = { ...v.data, [ID_KEY]: v.data[ID_KEY] ? newId : undefined }
+            cloned.data = { ...v.data, [ID_KEY]: v.data?.[ID_KEY] ? newId : undefined }
           } else {
             // group 中，图形元素 left、top 的计算问题：
             // https://stackoverflow.com/questions/71356612/why-top-and-left-properties-become-negative-after-selection-fabricjs
@@ -171,7 +171,7 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
             const top = v.top + group.top + group.height / 2 + offset
             cloned.left = left
             cloned.top = top
-            cloned.data = { ...v.data, [ID_KEY]: v.data[ID_KEY] ? newId : undefined }
+            cloned.data = { ...v.data, [ID_KEY]: v.data?.[ID_KEY] ? newId : undefined }
 
             // 如果是桌子，把以前的 id 和新 id 暂存一下
             if (item.data?.[TYPE_KEY] === TABLE_TYPE_VALUE) {
@@ -200,7 +200,7 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
       item.clone((cloned: fabric.Object) => {
         cloned.left += offset
         cloned.top += offset
-        cloned.data = { ...item.data, [ID_KEY]: item.data[ID_KEY] ? newId : undefined }
+        cloned.data = { ...item.data, [ID_KEY]: item.data?.[ID_KEY] ? newId : undefined }
         // 添加到画布
         canvas.add(cloned)
         activeObjects.push(cloned)
@@ -311,7 +311,7 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
     }
     // 椅子名，设置到表单上
     if (isSingleChair) {
-      const chairName = selectedObjects[0].data?.[NAME_KEY]
+      const chairName = selectedObjects[0].data[NAME_KEY]
       settingForm.setFieldValue('chairName', chairName)
       // 设置标题显示名称
       setTitleName(chairName)
