@@ -152,7 +152,7 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
     const clonedTableIdList: { oldId: string; newId: string }[] = []
 
     if (group) {
-      // 有 group，是选择了多个元素
+      /** 多选：有 group，是选择了多个元素 */
       group._objects.forEach((v) => {
         v.clone((cloned: fabric.Object) => {
           // 新 id
@@ -184,7 +184,15 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
           }
         })
       })
+
+      // 循环新克隆出来的元素列表，如果是桌子的文字，根据暂存的桌子 id 列表重新赋值一下新的 id
+      activeObjects.forEach((v) => {
+        if (v.data?.[TYPE_KEY] === TABLE_TEXT_TYPE_VALUE) {
+          v.data[PARENT_ID_KEY] = clonedTableIdList.find((d) => d.oldId === v.data[PARENT_ID_KEY])?.newId
+        }
+      })
     } else {
+      /** 单选 */
       // 新 id
       const newId = getRandomId()
 
@@ -196,20 +204,24 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
         // 添加到画布
         canvas.add(cloned)
         activeObjects.push(cloned)
-
-        // 如果是桌子，把以前的 id 和新 id 暂存一下
-        if (item.data?.[TYPE_KEY] === TABLE_TYPE_VALUE) {
-          clonedTableIdList.push({ oldId: item.data?.[ID_KEY], newId })
-        }
       })
-    }
 
-    // 循环新克隆出来的元素列表，如果是桌子的文字，根据暂存的桌子 id 列表重新赋值一下新的 id
-    activeObjects.forEach((v) => {
-      if (v.data?.[TYPE_KEY] === TABLE_TEXT_TYPE_VALUE) {
-        v.data[PARENT_ID_KEY] = clonedTableIdList.find((d) => d.oldId === v.data[PARENT_ID_KEY])?.newId
+      // 如果是桌子，将其桌位号的文字框一并克隆
+      if (item.data?.[TYPE_KEY] === TABLE_TYPE_VALUE) {
+        const textObject = canvas
+          .getObjects('text')
+          .find((v) => v.data && v.data[PARENT_ID_KEY] === item.data?.[ID_KEY])
+
+        textObject.clone((cloned: fabric.Object) => {
+          cloned.left += offset
+          cloned.top += offset
+          cloned.data = { [TYPE_KEY]: TABLE_TEXT_TYPE_VALUE, [PARENT_ID_KEY]: newId }
+          // 添加到画布
+          canvas.add(cloned)
+          activeObjects.push(cloned)
+        })
       }
-    })
+    }
 
     // 取消当前选中
     canvas.discardActiveObject()
@@ -238,7 +250,9 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
         // 没有则删除
         if (
           !selectedObjects.find(
-            (item) => !!item.data?.[PARENT_ID_KEY] && item.data?.[PARENT_ID_KEY] === text.data?.[PARENT_ID_KEY],
+            (item) =>
+              item.data?.[TYPE_KEY] === TABLE_TEXT_TYPE_VALUE &&
+              item.data?.[PARENT_ID_KEY] === text.data?.[PARENT_ID_KEY],
           )
         ) {
           canvas.remove(text)

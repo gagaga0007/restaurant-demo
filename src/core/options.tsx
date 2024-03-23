@@ -41,6 +41,7 @@ export const templateMenu = [
 ]
 
 export const STORAGE_KEY = 'restaurant-demo-storage-data-key'
+export const STORAGE_BG_IMAGE_KEY = 'bg_image'
 
 export const TYPE_KEY = 'type'
 export const NAME_KEY = 'name'

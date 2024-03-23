@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Button, Col, Dropdown, Popconfirm, Row, Space, Upload } from 'antd'
+import { Button, Col, Dropdown, message, Popconfirm, Row, Space, Upload } from 'antd'
 import { fabric } from 'fabric'
 import {
   AppstoreAddOutlined,
@@ -11,6 +11,7 @@ import {
   PlusOutlined,
   SaveOutlined,
   UploadOutlined,
+  WarningOutlined,
 } from '@ant-design/icons'
 import { UploadChangeParam } from 'antd/lib/upload'
 import { addCircle, addImage, addRect, addText, addTriangle, convertFileToBase64, getRandomId } from './core/util.ts'
@@ -28,16 +29,18 @@ import {
   defaultRectOptions,
   defaultSemiCircleOptions,
   defaultTableColor,
+  defaultTableTextOffset,
+  defaultTextOptions,
   defaultTriangleOptions,
   ID_KEY,
   PARENT_ID_KEY,
   STATUS_KEY,
+  STORAGE_BG_IMAGE_KEY,
+  STORAGE_KEY,
+  TABLE_TEXT_TYPE_VALUE,
   TABLE_TYPE_VALUE,
-  defaultTableTextOffset,
   templateMenu,
   TYPE_KEY,
-  TABLE_TEXT_TYPE_VALUE,
-  defaultTextOptions,
 } from './core/options.tsx'
 import { EditForm } from './components/EditForm.tsx'
 
@@ -53,30 +56,35 @@ function App() {
   const [backgroundImage, setBackgroundImage] = useState('')
 
   // 改变背景图
-  const changeBgImg = async (fileInfo?: UploadChangeParam) => {
+  const setBgImg = (base64: string) => {
+    // 盒子宽度
+    const innerWidth = innerElement.current!.getBoundingClientRect().width
+    // 通过 Image 对象获取图片宽高，并设置 canvas 宽高
+    const image = new Image()
+    image.src = base64
+    image.onload = () => {
+      const height = (image.height * innerWidth) / image.width
+      innerElement.current!.style.height = height + 'px'
+      canvasObj.current!.setHeight(height)
+
+      const borderWidth = 2
+      canvasElement.current!.height = height - borderWidth
+      canvasElement.current!.width = innerWidth - borderWidth
+
+      setBackgroundImage(base64)
+    }
+  }
+
+  // 上传背景图触发
+  const onBgImgFileChange = async (fileInfo?: UploadChangeParam) => {
     if (!fileInfo) {
       setBackgroundImage('')
     } else {
       const file = fileInfo.file.originFileObj
       // 转成 Base64
       const base64 = await convertFileToBase64(file as File)
-
-      // 盒子宽度
-      const innerWidth = innerElement.current!.getBoundingClientRect().width
-      // 通过 Image 对象获取图片宽高，并设置 canvas 宽高
-      const image = new Image()
-      image.src = base64
-      image.onload = () => {
-        const height = (image.height * innerWidth) / image.width
-        innerElement.current!.style.height = height + 'px'
-        canvasObj.current!.setHeight(height)
-
-        const borderWidth = 2
-        canvasElement.current!.height = height - borderWidth
-        canvasElement.current!.width = innerWidth - borderWidth
-
-        setBackgroundImage(base64)
-      }
+      // 设置背景图
+      setBgImg(base64)
     }
   }
 
@@ -244,11 +252,66 @@ function App() {
     canvasObj.current.discardActiveObject()
   }
 
-  const onSaveData = () => {}
+  const onSaveData = () => {
+    try {
+      // 默认只包含必要的字段。接受一个参数，包含输出中额外包括的属性名。此处将 data 存入
+      const objectsJson = canvasObj.current.toJSON(['data'])
+      objectsJson.objects.forEach((e) => {
+        // 将其中 type 为 click 的元素处理成正确的元素 TODO: 暂时不知触发条件，偶尔触发
+        if (e.type === 'click') {
+          if (e.data?.type === CHAIR_TYPE_VALUE) {
+            e.type = 'circle'
+          } else if (e.data?.type === TABLE_TYPE_VALUE) {
+            e.type = 'rect'
+          }
+        }
+      })
+      if (objectsJson.objects.length === 0 && !backgroundImage) {
+        message.warning('当前暂未添加内容，请在添加内容后再保存')
+      } else {
+        const json = JSON.stringify(objectsJson)
+        localStorage.setItem(STORAGE_KEY, json)
+        if (backgroundImage) {
+          localStorage.setItem(STORAGE_BG_IMAGE_KEY, backgroundImage)
+        }
+        message.success('保存成功')
+      }
+    } catch (e) {
+      if (e.message?.includes('Storage')) {
+        message.error('背景图或数据中包含超出存储限制的图片，无法保存到浏览器缓存')
+      } else {
+        console.error(e)
+      }
+    }
+  }
 
-  const onImportData = () => {}
+  const onImportData = () => {
+    const data = localStorage.getItem(STORAGE_KEY)
+    const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
+    if (!data && !bgImage) {
+      message.warning('当前浏览器暂无可导入的数据')
+    } else {
+      if (data) {
+        const objectsJson = JSON.parse(data)
+        canvasObj.current.loadFromJSON(objectsJson, canvasObj.current.renderAll.bind(canvasObj.current))
+      }
+      if (bgImage) {
+        setBgImg(bgImage)
+      }
+    }
+  }
 
-  const onDeleteData = () => {}
+  const onDeleteData = () => {
+    const data = localStorage.getItem(STORAGE_KEY)
+    const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
+    if (!data && !bgImage) {
+      message.warning('当前浏览器未保存数据，无需清除')
+    } else {
+      localStorage.removeItem(STORAGE_KEY)
+      localStorage.removeItem(STORAGE_BG_IMAGE_KEY)
+      message.success('清除成功')
+    }
+  }
 
   const updateCanvasContext = (canvas: fabric.Canvas | null) => {
     canvasObj.current = canvas
@@ -270,8 +333,6 @@ function App() {
     // 监听选择元素 初始/更新/取消
     fabricCanvas.on('selection:created', (e) => {
       onSelectedObjectChange(e.selected ?? [])
-
-      console.log(e.selected)
     })
 
     fabricCanvas.on('selection:updated', (e) => {
@@ -315,13 +376,13 @@ function App() {
                 </Space>
               </Button>
             </Dropdown>
-            <Upload onChange={changeBgImg} fileList={[]} customRequest={() => {}}>
+            <Upload onChange={onBgImgFileChange} fileList={[]} customRequest={() => {}}>
               <Button icon={<UploadOutlined />} type="primary" ghost>
                 设置背景
               </Button>
             </Upload>
             {!!backgroundImage && (
-              <Button icon={<CloseCircleOutlined />} type="primary" ghost danger onClick={() => changeBgImg()}>
+              <Button icon={<CloseCircleOutlined />} type="primary" ghost danger onClick={() => onBgImgFileChange()}>
                 取消背景
               </Button>
             )}
@@ -356,7 +417,7 @@ function App() {
               placement="bottom"
               okText="确定"
               cancelText="取消"
-              icon={<DeleteOutlined style={{ color: 'red' }} />}
+              icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />}
               onConfirm={clearAll}
             >
               <Button icon={<DeleteOutlined />} type="primary" ghost danger>
@@ -370,16 +431,26 @@ function App() {
             <Button icon={<SaveOutlined />} type="primary" onClick={onSaveData}>
               保存
             </Button>
-            <Button icon={<ImportOutlined />} type="primary" ghost onClick={onImportData}>
-              导入
-            </Button>
+            <Popconfirm
+              title="导入数据"
+              description="导入数据会清空当前画布的全部内容，是否继续导入？"
+              placement="bottomLeft"
+              okText="确定"
+              cancelText="取消"
+              icon={<WarningOutlined style={{ color: '#ffaad14' }} />}
+              onConfirm={onImportData}
+            >
+              <Button icon={<ImportOutlined />} type="primary" ghost>
+                导入
+              </Button>
+            </Popconfirm>
             <Popconfirm
               title="清空浏览器保存的数据"
               description="确认清空浏览器保存的数据吗？此操作不可恢复。"
               placement="bottomLeft"
               okText="确定"
               cancelText="取消"
-              icon={<DeleteOutlined style={{ color: 'red' }} />}
+              icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />}
               onConfirm={onDeleteData}
             >
               <Button icon={<DeleteOutlined />} type="primary" ghost danger>
