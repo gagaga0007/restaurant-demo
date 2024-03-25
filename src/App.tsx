@@ -284,18 +284,22 @@ function App() {
   }
 
   const onImportData = async () => {
-    const data = localStorage.getItem(STORAGE_KEY)
-    const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
-    if (!data && !bgImage) {
-      message.warning('当前浏览器暂无可导入的数据')
-    } else {
-      if (data) {
-        const objectsJson = JSON.parse(data)
-        canvasObj.current.loadFromJSON(objectsJson, canvasObj.current.renderAll.bind(canvasObj.current))
+    try {
+      const data = localStorage.getItem(STORAGE_KEY)
+      const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
+      if (!data && !bgImage) {
+        message.warning('当前浏览器暂无可导入的数据')
+      } else {
+        if (data) {
+          const objectsJson = JSON.parse(data)
+          canvasObj.current.loadFromJSON(objectsJson, canvasObj.current.renderAll.bind(canvasObj.current))
+        }
+        if (bgImage) {
+          setBgImg(bgImage)
+        }
       }
-      if (bgImage) {
-        setBgImg(bgImage)
-      }
+    } catch (e) {
+      message.error('导入时发生错误')
     }
   }
 
