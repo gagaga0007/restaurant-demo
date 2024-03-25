@@ -8,9 +8,9 @@ import {
   DeleteOutlined,
   DownOutlined,
   ImportOutlined,
+  PictureOutlined,
   PlusOutlined,
   SaveOutlined,
-  UploadOutlined,
   WarningOutlined,
 } from '@ant-design/icons'
 import { UploadChangeParam } from 'antd/lib/upload'
@@ -240,11 +240,9 @@ function App() {
     setSelectedObjects([])
   }
 
-  const onSelectedObjectChange = (objects: fabric.Object[]) => {
-    if (objects.length === 0) return
-
-    const canvas = objects?.[0]?.canvas
-    setSelectedObjects(canvas?.getActiveObjects() ?? [])
+  const getActiveObjects = () => {
+    const activeObjects = canvasObj.current.getActiveObjects()
+    setSelectedObjects(activeObjects ?? [])
   }
 
   const onDeleteObjects = () => {
@@ -252,7 +250,7 @@ function App() {
     canvasObj.current.discardActiveObject()
   }
 
-  const onSaveData = () => {
+  const onSaveData = async () => {
     try {
       // 默认只包含必要的字段。接受一个参数，包含输出中额外包括的属性名。此处将 data 存入
       const objectsJson = canvasObj.current.toJSON(['data'])
@@ -285,7 +283,7 @@ function App() {
     }
   }
 
-  const onImportData = () => {
+  const onImportData = async () => {
     const data = localStorage.getItem(STORAGE_KEY)
     const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
     if (!data && !bgImage) {
@@ -301,7 +299,7 @@ function App() {
     }
   }
 
-  const onDeleteData = () => {
+  const onDeleteData = async () => {
     const data = localStorage.getItem(STORAGE_KEY)
     const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
     if (!data && !bgImage) {
@@ -331,18 +329,9 @@ function App() {
     const fabricCanvas = new fabric.Canvas(canvasElement.current)
 
     // 监听选择元素 初始/更新/取消
-    fabricCanvas.on('selection:created', (e) => {
-      onSelectedObjectChange(e.selected ?? [])
-    })
-
-    fabricCanvas.on('selection:updated', (e) => {
-      onSelectedObjectChange(e.selected ?? [])
-      onSelectedObjectChange(e.deselected ?? [])
-    })
-
-    fabricCanvas.on('selection:cleared', (e) => {
-      onSelectedObjectChange(e.deselected ?? [])
-    })
+    fabricCanvas.on('selection:created', getActiveObjects)
+    fabricCanvas.on('selection:updated', getActiveObjects)
+    fabricCanvas.on('selection:cleared', getActiveObjects)
 
     updateCanvasContext(fabricCanvas)
 
@@ -363,6 +352,7 @@ function App() {
         padding: '12px 24px 24px',
         boxSizing: 'border-box',
         overflowX: 'hidden',
+        overflowY: 'scroll',
       }}
     >
       <Row>
@@ -377,13 +367,13 @@ function App() {
               </Button>
             </Dropdown>
             <Upload onChange={onBgImgFileChange} fileList={[]} customRequest={() => {}}>
-              <Button icon={<UploadOutlined />} type="primary" ghost>
-                设置背景
+              <Button icon={<PictureOutlined />} type="primary" ghost>
+                背景
               </Button>
             </Upload>
             {!!backgroundImage && (
               <Button icon={<CloseCircleOutlined />} type="primary" ghost danger onClick={() => onBgImgFileChange()}>
-                取消背景
+                删除背景
               </Button>
             )}
             <Button icon={<PlusOutlined />} type="primary" ghost onClick={addTable}>
@@ -421,7 +411,7 @@ function App() {
               onConfirm={clearAll}
             >
               <Button icon={<DeleteOutlined />} type="primary" ghost danger>
-                清空全部
+                清空
               </Button>
             </Popconfirm>
           </Space>
