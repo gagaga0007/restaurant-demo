@@ -31,7 +31,6 @@ export const getRandomId = (length = 12) => {
   const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
   let code = ''
   for (let i = 0; i < length; i++) {
-    // 步骤3 开始循环
     const randomIndex = Math.floor(Math.random() * charset.length)
     code += charset.charAt(randomIndex)
   }

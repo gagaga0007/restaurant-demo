@@ -265,18 +265,18 @@ function App() {
         }
       })
       if (objectsJson.objects.length === 0 && !backgroundImage) {
-        message.warning('当前暂未添加内容，请在添加内容后再保存')
+        message.warning('まだ何も追加されていません。何かを追加した後で保存してください')
       } else {
         const json = JSON.stringify(objectsJson)
         localStorage.setItem(STORAGE_KEY, json)
         if (backgroundImage) {
           localStorage.setItem(STORAGE_BG_IMAGE_KEY, backgroundImage)
         }
-        message.success('保存成功')
+        message.success('保存しました')
       }
     } catch (e) {
       if (e.message?.includes('Storage')) {
-        message.error('背景图或数据中包含超出存储限制的图片，无法保存到浏览器缓存')
+        message.error('背景画像やデータに保存制限を超える画像が含まれているため、ブラウザのキャッシュに保存できません')
       } else {
         console.error(e)
       }
@@ -288,7 +288,7 @@ function App() {
       const data = localStorage.getItem(STORAGE_KEY)
       const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
       if (!data && !bgImage) {
-        message.warning('当前浏览器暂无可导入的数据')
+        message.warning('現在ブラウザにはインポートできるデータがありません')
       } else {
         if (data) {
           const objectsJson = JSON.parse(data)
@@ -299,7 +299,7 @@ function App() {
         }
       }
     } catch (e) {
-      message.error('导入时发生错误')
+      message.error('インポート時エラーが発生しました')
     }
   }
 
@@ -307,11 +307,11 @@ function App() {
     const data = localStorage.getItem(STORAGE_KEY)
     const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
     if (!data && !bgImage) {
-      message.warning('当前浏览器未保存数据，无需清除')
+      message.warning('現在ブラウザに保存されたデータはありません。クリアする必要はありません')
     } else {
       localStorage.removeItem(STORAGE_KEY)
       localStorage.removeItem(STORAGE_BG_IMAGE_KEY)
-      message.success('清除成功')
+      message.success('クリアしました')
     }
   }
 
@@ -365,7 +365,7 @@ function App() {
             <Dropdown menu={{ items: templateMenu, onClick: (e) => addTemplate(e.key) }}>
               <Button icon={<ContainerOutlined />} type="primary" ghost>
                 <Space>
-                  模板
+                  テンプレート
                   <DownOutlined />
                 </Space>
               </Button>
@@ -377,45 +377,45 @@ function App() {
             </Upload>
             {!!backgroundImage && (
               <Button icon={<CloseCircleOutlined />} type="primary" ghost danger onClick={() => onBgImgFileChange()}>
-                删除背景
+                背景を削除
               </Button>
             )}
             <Button icon={<PlusOutlined />} type="primary" ghost onClick={addTable}>
-              桌子
+              テーブル
             </Button>
             <Button icon={<PlusOutlined />} type="primary" ghost onClick={addChair}>
               椅子
             </Button>
             <Button icon={<PlusOutlined />} type="primary" ghost onClick={addCircleWall}>
-              柱子
+              柱
             </Button>
             <Button icon={<PlusOutlined />} type="primary" ghost onClick={addLineWall}>
-              墙体
+              壁
             </Button>
             <Upload onChange={addPicture} fileList={[]} customRequest={() => {}}>
               <Button icon={<PlusOutlined />} type="primary" ghost>
-                图片
+                画像
               </Button>
             </Upload>
             <Dropdown menu={{ items: customMenu, onClick: (e) => addCustom(e.key) }}>
               <Button icon={<AppstoreAddOutlined />} type="primary" ghost>
                 <Space>
-                  图形
+                  図形
                   <DownOutlined />
                 </Space>
               </Button>
             </Dropdown>
             <Popconfirm
-              title="清空全部"
-              description="确认清空全部内容吗？此操作不可恢复。"
+              title="すべてクリア"
+              description="すべての内容をクリアしてもよろしいですか？この操作を実行すると元に戻せなくなります。"
               placement="bottom"
-              okText="确定"
-              cancelText="取消"
+              okText="確定"
+              cancelText="キャンセル"
               icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />}
               onConfirm={clearAll}
             >
               <Button icon={<DeleteOutlined />} type="primary" ghost danger>
-                清空
+                クリア
               </Button>
             </Popconfirm>
           </Space>
@@ -426,29 +426,29 @@ function App() {
               保存
             </Button>
             <Popconfirm
-              title="导入数据"
-              description="导入数据会清空当前画布的全部内容，是否继续导入？"
+              title="データインポート"
+              description="データをインポートすると既存データは上書きされます。インポートを続けますか？"
               placement="bottomLeft"
-              okText="确定"
-              cancelText="取消"
+              okText="確定"
+              cancelText="キャンセル"
               icon={<WarningOutlined style={{ color: '#ffaad14' }} />}
               onConfirm={onImportData}
             >
               <Button icon={<ImportOutlined />} type="primary" ghost>
-                导入
+                インポート
               </Button>
             </Popconfirm>
             <Popconfirm
-              title="清空浏览器保存的数据"
-              description="确认清空浏览器保存的数据吗？此操作不可恢复。"
+              title="ブラウザに保存されたデータをクリア"
+              description="ブラウザに保存されたデータをクリアしてもよろしいですか？この操作を実行すると元に戻せなくなります。"
               placement="bottomLeft"
-              okText="确定"
-              cancelText="取消"
+              okText="確定"
+              cancelText="キャンセル"
               icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />}
               onConfirm={onDeleteData}
             >
               <Button icon={<DeleteOutlined />} type="primary" ghost danger>
-                清除缓存
+                キャッシュクリア
               </Button>
             </Popconfirm>
           </Space>

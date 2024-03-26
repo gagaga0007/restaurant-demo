@@ -321,23 +321,23 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
   return (
     <>
       <Typography.Title level={4} style={{ margin: 0 }}>
-        <SettingOutlined /> 设置{titleName ? ` ${titleName}` : null}
+        <SettingOutlined /> 設定{titleName ? ` ${titleName}` : null}
       </Typography.Title>
       <Divider />
       <Form form={settingForm} layout="vertical" onFinish={onChangeObjectProperties} initialValues={settingInitial}>
         <Row>
           <Col span={12}>
-            <Form.Item name="strokeColor" label="边框颜色">
+            <Form.Item name="strokeColor" label="枠の色">
               <ColorPicker format="rgb" />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item name="fillColor" label="填充颜色">
+            <Form.Item name="fillColor" label="塗りつぶしの色">
               <ColorPicker format="rgb" />
             </Form.Item>
           </Col>
         </Row>
-        <Form.Item name="strokeWidth" label="边框宽度">
+        <Form.Item name="strokeWidth" label="枠の幅">
           <InputNumber
             min={0}
             max={10}
@@ -347,17 +347,17 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
           />
         </Form.Item>
         {(isSingleTable || isMultipleHasSingleTable) && (
-          <Form.Item name="tableName" label="桌位名">
-            <Input placeholder="设置桌位名" allowClear />
+          <Form.Item name="tableName" label="テーブル名">
+            <Input placeholder="テーブル名設定" allowClear />
           </Form.Item>
         )}
         {isSingleChair && (
-          <Form.Item name="chairName" label="座位号">
-            <Input placeholder="设置座位号" allowClear />
+          <Form.Item name="chairName" label="座席番号">
+            <Input placeholder="座席番号設定" allowClear />
           </Form.Item>
         )}
         <Button type="primary" block htmlType="submit">
-          确认
+          確定
         </Button>
       </Form>
       <Divider />
@@ -365,17 +365,17 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
         <Dropdown menu={{ items: chairSelectItems, onClick: (e) => onChairStatusChange(e.key) }}>
           <Button icon={<ContainerOutlined />} type="primary" ghost block style={{ marginTop: 12 }}>
             <Space>
-              <span>{isMultipleHasChair ? '批量设置' : ''}椅子状态</span>
+              <span>{isMultipleHasChair ? '椅子状態一括設定' : '椅子状態'}</span>
               <DownOutlined />
             </Space>
           </Button>
         </Dropdown>
       )}
       <Button icon={<CopyOutlined />} type="primary" ghost block onClick={cloneObjects} style={{ marginTop: 12 }}>
-        克隆元素
+        コピー
       </Button>
       <Button icon={<DeleteOutlined />} danger block onClick={deleteObjects} style={{ marginTop: 12 }}>
-        删除元素
+        削除
       </Button>
     </>
   )

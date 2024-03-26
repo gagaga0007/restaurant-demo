@@ -10,7 +10,7 @@ export const customMenu = [
     icon: <PlusOutlined />,
   },
   {
-    label: '圆形',
+    label: '円形',
     key: CustomMenuEnum.CIRCLE,
     icon: <PlusOutlined />,
   },
@@ -24,17 +24,17 @@ export const customMenu = [
 // 自定义模板菜单
 export const templateMenu = [
   {
-    label: '双人桌',
+    label: '2人用テーブル',
     key: TemplateEnum.TWO,
     icon: <PlusOutlined />,
   },
   {
-    label: '四人桌',
+    label: '4人用テーブル',
     key: TemplateEnum.FOUR,
     icon: <PlusOutlined />,
   },
   {
-    label: '六人桌',
+    label: '6人用テーブル',
     key: TemplateEnum.SIX,
     icon: <PlusOutlined />,
   },
@@ -154,22 +154,22 @@ export const defaultTextOptions: fabric.ITextOptions = {
  */
 export const chairStatusOptions: (KeyPairProps & { color: string })[] = [
   {
-    key: '默认',
+    key: 'デフォルト',
     value: ChairStatusEnum.DEFAULT,
     color: `rgb(${defaultChairColor.r}, ${defaultChairColor.g}, ${defaultChairColor.b})`,
   },
   {
-    key: '已预约',
+    key: '予約済み',
     value: ChairStatusEnum.HAS_ORDER,
     color: `rgb(255, 77, 79)`,
   },
   {
-    key: '未预约',
+    key: '未予約',
     value: ChairStatusEnum.NO_ORDER,
     color: `rgb(82, 196, 26)`,
   },
   {
-    key: '其他',
+    key: 'その他',
     value: ChairStatusEnum.UNNAME_ORDER,
     color: `rgb(255, 169, 64)`,
   },
