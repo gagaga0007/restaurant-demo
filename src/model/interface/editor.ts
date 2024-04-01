@@ -1,10 +1,5 @@
 import { Color } from 'antd/lib/color-picker'
 
-export interface KeyPairProps {
-  key: string
-  value: string
-}
-
 export interface ChangePropertiesProps {
   fillColor: Color
   strokeColor: Color

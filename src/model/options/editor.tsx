@@ -1,6 +1,7 @@
 import { fabric } from 'fabric'
-import { ChairStatusEnum, CustomMenuEnum, KeyPairProps, TemplateEnum } from './interface.ts'
+import { ChairStatusEnum, CustomMenuEnum, TemplateEnum } from '../interface/editor.ts'
 import { PlusOutlined } from '@ant-design/icons'
+import { KeyPairProps } from '@/model/interface'
 
 // 自定义形状菜单
 export const customMenu = [

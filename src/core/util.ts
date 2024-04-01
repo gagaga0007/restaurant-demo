@@ -4,7 +4,7 @@ import {
   defaultRectOptions,
   defaultSemiCircleOptions,
   defaultTriangleOptions,
-} from './options.tsx'
+} from '../model/options/editor.tsx'
 import { fabric } from 'fabric'
 
 /**

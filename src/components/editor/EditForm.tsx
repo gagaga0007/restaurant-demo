@@ -12,7 +12,7 @@ import {
   Space,
   Typography,
 } from 'antd'
-import { ChairStatusEnum, ChangePropertiesProps } from '../core/interface.ts'
+import { ChairStatusEnum, ChangePropertiesProps } from '../../model/interface/editor.ts'
 import { fabric } from 'fabric'
 import { useEffect, useMemo, useState } from 'react'
 import { ContainerOutlined, CopyOutlined, DeleteOutlined, DownOutlined, SettingOutlined } from '@ant-design/icons'
@@ -27,8 +27,8 @@ import {
   TABLE_TYPE_VALUE,
   TABLE_TEXT_TYPE_VALUE,
   TYPE_KEY,
-} from '../core/options.tsx'
-import { getRandomId } from '../core/util.ts'
+} from '../../model/options/editor.tsx'
+import { getRandomId } from '../../core/util.ts'
 
 interface Props {
   selectedObjects: fabric.Object[]
