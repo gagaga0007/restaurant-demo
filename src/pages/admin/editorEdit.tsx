@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { fabric } from 'fabric'
 import { UploadChangeParam } from 'antd/lib/upload'
-import { addCircle, addImage, addRect, addText, addTriangle, convertFileToBase64, getRandomId } from '../core/util.ts'
+import { addCircle, addImage, addRect, addText, addTriangle, convertFileToBase64, getRandomId } from '@/core/util.ts'
 import {
   CHAIR_TYPE_VALUE,
   customMenu,
@@ -27,8 +27,8 @@ import {
   TABLE_TYPE_VALUE,
   templateMenu,
   TYPE_KEY,
-} from '../model/options/editor.tsx'
-import { ChairStatusEnum, CustomMenuEnum, TemplateEnum } from '../model/interface/editor.ts'
+} from '@/model/options/editor.tsx'
+import { ChairStatusEnum, CustomMenuEnum, TemplateEnum } from '@/model/interface/editor.ts'
 import { Button, Col, Dropdown, message, Popconfirm, Row, Space, Upload } from 'antd'
 import {
   AppstoreAddOutlined,
@@ -42,9 +42,9 @@ import {
   SaveOutlined,
   WarningOutlined,
 } from '@ant-design/icons'
-import { EditForm } from '../components/editor/EditForm.tsx'
+import { EditForm } from '@/components/editor/EditForm.tsx'
 
-const EditorEdit = () => {
+const EditorEditPage = () => {
   const innerElement = useRef<HTMLDivElement>(null)
   const canvasElement = useRef<HTMLCanvasElement>(null)
 
@@ -318,37 +318,39 @@ const EditorEdit = () => {
   }
 
   useEffect(() => {
-    // 设置宽高
-    const { width, height } = innerElement.current!.getBoundingClientRect()
-    const canvasWidth = width - 2
-    const canvasHeight = height - 2
-    canvasElement.current!.width = canvasWidth
-    canvasElement.current!.height = canvasHeight
-    canvasElement.current!.style.width = canvasWidth + 'px'
-    canvasElement.current!.style.height = canvasHeight + 'px'
+    setTimeout(() => {
+      // 设置宽高
+      const { width, height } = innerElement.current!.getBoundingClientRect()
+      const canvasWidth = width - 2
+      const canvasHeight = height - 2
+      canvasElement.current!.width = canvasWidth
+      canvasElement.current!.height = canvasHeight
+      canvasElement.current!.style.width = canvasWidth + 'px'
+      canvasElement.current!.style.height = canvasHeight + 'px'
 
-    // 初始化
-    const fabricCanvas = new fabric.Canvas(canvasElement.current)
+      // 初始化
+      const fabricCanvas = new fabric.Canvas(canvasElement.current)
 
-    // 监听选择元素 初始/更新/取消
-    fabricCanvas.on('selection:created', getActiveObjects)
-    fabricCanvas.on('selection:updated', getActiveObjects)
-    fabricCanvas.on('selection:cleared', getActiveObjects)
+      // 监听选择元素 初始/更新/取消
+      fabricCanvas.on('selection:created', getActiveObjects)
+      fabricCanvas.on('selection:updated', getActiveObjects)
+      fabricCanvas.on('selection:cleared', getActiveObjects)
 
-    updateCanvasContext(fabricCanvas)
+      updateCanvasContext(fabricCanvas)
 
-    return () => {
-      updateCanvasContext(null)
-      fabricCanvas.dispose()
-      setSelectedObjects([])
-    }
+      return () => {
+        updateCanvasContext(null)
+        fabricCanvas.dispose()
+        setSelectedObjects([])
+      }
+    }, 100)
   }, [])
 
   return (
     <div
       style={{
-        width: '100vw',
-        height: '100vh',
+        width: '100%',
+        height: '100%',
         display: 'flex',
         flexDirection: 'column',
         padding: '12px 24px 24px',
@@ -453,11 +455,13 @@ const EditorEdit = () => {
         </Col>
       </Row>
 
-      <div style={{ flex: 1, display: 'flex' }}>
-        <div
+      <Row style={{ height: '100%' }}>
+        <Col
           ref={innerElement}
+          span={19}
           style={{
-            flex: 1,
+            height: '100%',
+            boxSizing: 'border-box',
             border: '1px solid #cccccc',
             backgroundImage: `url(${backgroundImage})`,
             backgroundPosition: 'center',
@@ -466,16 +470,16 @@ const EditorEdit = () => {
           }}
         >
           <canvas ref={canvasElement}></canvas>
-        </div>
+        </Col>
 
-        <div
+        <Col
+          span={5}
           style={{
-            width: '20vw',
+            height: '100%',
             padding: '12px 24px',
-            marginLeft: 12,
             boxSizing: 'border-box',
             backgroundColor: '#eeeeee',
-            borderRadius: 12,
+            // borderRadius: 12,
           }}
         >
           {selectedObjects.length > 0 ? (
@@ -485,10 +489,10 @@ const EditorEdit = () => {
               onDeleteObjects={onDeleteObjects}
             />
           ) : null}
-        </div>
-      </div>
+        </Col>
+      </Row>
     </div>
   )
 }
 
-export default EditorEdit
+export default EditorEditPage

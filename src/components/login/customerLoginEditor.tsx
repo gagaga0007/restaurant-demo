@@ -3,7 +3,7 @@ import { UserLoginProps } from '@/model/interface/userLogin.ts'
 import { useState } from 'react'
 import { useAuth } from '@/store/authContext.tsx'
 
-export const LoginEditor = ({ setIsLogin }: { setIsLogin: (value: boolean) => void }) => {
+export const CustomerLoginEditor = ({ setIsLogin }: { setIsLogin: (value: boolean) => void }) => {
   const { setUserName, setRoomNumber } = useAuth()
   const [loading, setLoading] = useState(false)
   const [form] = Form.useForm()

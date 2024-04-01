@@ -1,4 +1,4 @@
-import { KeyPairProps } from '@/model/interface'
+import { KeyPairProps } from '@/model/interface/base.ts'
 import { UserOrderTypeEnum } from '@/model/interface/userLogin.ts'
 
 export const userOrderTypeOptions: (KeyPairProps & { color: string })[] = [

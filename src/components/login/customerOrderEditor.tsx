@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { userOrderTypeOptions } from '@/model/options/userLogin.ts'
 import { useAuth } from '@/store/authContext.tsx'
+import { routes } from '@/core/routes.ts'
 
-export const OrderEditor = ({ setIsLogin }: { setIsLogin: (value: boolean) => void }) => {
+export const CustomerOrderEditor = ({ setIsLogin }: { setIsLogin: (value: boolean) => void }) => {
   const navigate = useNavigate()
   const { setUserName, setRoomNumber } = useAuth()
   const [loading, setLoading] = useState(false)
@@ -14,9 +15,8 @@ export const OrderEditor = ({ setIsLogin }: { setIsLogin: (value: boolean) => vo
   const onSubmit = (data: UserOrderProps) => {
     setLoading(true)
     setTimeout(() => {
-      console.log(data)
       setLoading(false)
-      navigate('/editor')
+      navigate(`/${routes.EDITOR_SELECT}`)
     }, 500)
   }
 
