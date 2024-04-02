@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 import { useMount } from 'ahooks'
 import { getRandomId } from '@/core/util.ts'
 import { OrderProps, OrderTypeEnum } from '@/model/interface/order.ts'
-import { Button, Space, Table, TableColumnsType, Tag } from 'antd'
+import { Button, Space, Table, TableColumnsType, Tag, Typography } from 'antd'
 import { userOrderTypeOptions } from '@/model/options/order.ts'
 
 const columns: TableColumnsType<OrderProps> = [
@@ -72,11 +72,10 @@ const OrderListPage = () => {
       title="预订列表"
       extra={
         <Space>
-          {selectIds.length > 0 && (
-            <Button type="primary" ghost onClick={onDeselectAll}>
-              取消选择
-            </Button>
-          )}
+          <Typography.Text>已选 {selectIds.length} 项</Typography.Text>
+          <Button type="primary" ghost onClick={onDeselectAll} disabled={selectIds.length === 0}>
+            取消选择
+          </Button>
           <Button type="primary" onClick={onSubmit} disabled={selectIds.length === 0}>
             提交
           </Button>
