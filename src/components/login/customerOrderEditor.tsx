@@ -1,10 +1,10 @@
 import { Button, DatePicker, Form, InputNumber, Select } from 'antd'
-import { UserOrderProps } from '@/model/interface/userLogin.ts'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { userOrderTypeOptions } from '@/model/options/userLogin.ts'
+import { userOrderTypeOptions } from '@/model/options/order.ts'
 import { useAuth } from '@/store/authContext.tsx'
 import { routes } from '@/core/routes.ts'
+import { OrderEditProps } from '@/model/interface/order.ts'
 
 export const CustomerOrderEditor = ({ setIsLogin }: { setIsLogin: (value: boolean) => void }) => {
   const navigate = useNavigate()
@@ -12,7 +12,7 @@ export const CustomerOrderEditor = ({ setIsLogin }: { setIsLogin: (value: boolea
   const [loading, setLoading] = useState(false)
   const [form] = Form.useForm()
 
-  const onSubmit = (data: UserOrderProps) => {
+  const onSubmit = (data: OrderEditProps) => {
     setLoading(true)
     setTimeout(() => {
       setLoading(false)

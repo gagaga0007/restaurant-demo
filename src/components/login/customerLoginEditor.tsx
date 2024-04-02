@@ -1,5 +1,5 @@
 import { Button, Form, Input } from 'antd'
-import { UserLoginProps } from '@/model/interface/userLogin.ts'
+import { UserLoginProps } from '@/model/interface/login.ts'
 import { useState } from 'react'
 import { useAuth } from '@/store/authContext.tsx'
 

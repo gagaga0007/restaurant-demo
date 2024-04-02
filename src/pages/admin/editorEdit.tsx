@@ -268,9 +268,7 @@ const EditorEditPage = () => {
       } else {
         const json = JSON.stringify(objectsJson)
         localStorage.setItem(STORAGE_KEY, json)
-        if (backgroundImage) {
-          localStorage.setItem(STORAGE_BG_IMAGE_KEY, backgroundImage)
-        }
+        localStorage.setItem(STORAGE_BG_IMAGE_KEY, backgroundImage || '')
         message.success('保存しました')
       }
     } catch (e) {

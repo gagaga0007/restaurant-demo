@@ -1,9 +1,14 @@
 import { useAuth } from '@/store/authContext.tsx'
 import { useState } from 'react'
 import { Button, Form, Input } from 'antd'
-import { UserLoginProps } from '@/model/interface/userLogin.ts'
+import { UserLoginProps } from '@/model/interface/login.ts'
 import { useNavigate } from 'react-router-dom'
 import { routes } from '@/core/routes.ts'
+
+const initData = {
+  userName: 'admin',
+  password: '123456',
+}
 
 export const AdminLogin = () => {
   const navigate = useNavigate()
@@ -21,7 +26,14 @@ export const AdminLogin = () => {
   }
 
   return (
-    <Form form={form} onFinish={onSubmit} disabled={loading} labelAlign="left" labelCol={{ span: 4 }}>
+    <Form
+      form={form}
+      onFinish={onSubmit}
+      disabled={loading}
+      labelAlign="left"
+      labelCol={{ span: 4 }}
+      initialValues={initData}
+    >
       <Form.Item rules={[{ required: true, message: '请输入用户名' }]} name="userName" label="用户名">
         <Input placeholder="请输入用户名" />
       </Form.Item>
