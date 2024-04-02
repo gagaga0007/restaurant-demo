@@ -1,30 +1,39 @@
-import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
-import { message } from 'antd'
+import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 
-const api = axios.create({
-  baseURL: '/',
-})
+const axiosConfig: AxiosRequestConfig = {
+  timeout: 30000,
+  timeoutErrorMessage: '连接超时',
+  validateStatus: (status) => status < 400,
+}
 
-api.interceptors.request.use(
-  (request: InternalAxiosRequestConfig) => {
-    // TODO: header
-    // request.headers.set()
+const createClient = (config?: AxiosRequestConfig) => {
+  const instance = axios.create({ ...axiosConfig, ...config })
+  instance.interceptors.request.use(
+    (config: InternalAxiosRequestConfig<any>) => {
+      return config
+    },
+    (error: Error) => {
+      console.log('@@@ Request Error @@@：', error)
+      return Promise.reject(error)
+    },
+  )
+  instance.interceptors.response.use(
+    (response: AxiosResponse) => {
+      return response
+    },
+    (error: Error) => {
+      console.log('@@@ Response Error @@@：', error)
+      if (axios.isAxiosError(error)) {
+        const response = error.response
+        return Promise.reject(new Error(response?.data?.message ?? '服务器异常，请联系运维人员'))
+      } else {
+        return Promise.reject(error)
+      }
+    },
+  )
+  return instance
+}
 
-    return request
-  },
-  (error) => {
-    console.error('@@@ ERROR @@@: ', error)
-  },
-)
-
-api.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response
-  },
-  async (error) => {
-    console.error(error)
-    message.error('发生错误，请查看控制台')
-  },
-)
+const api = createClient()
 
 export default api
