@@ -26,7 +26,7 @@ export const BaseHeader = () => {
       }}
     >
       <Typography.Text style={{ color: '#ffffff', fontSize: 26, letterSpacing: '4px', fontWeight: 'bold' }}>
-        xxx酒店
+        LOGO
       </Typography.Text>
       <Space size={16}>
         <Typography.Text style={{ color: '#ffffff' }}>欢迎，{userName}</Typography.Text>

@@ -6,6 +6,7 @@ import { Suspense } from 'react'
 import { Spin } from 'antd'
 import { routes } from '@/core/routes.ts'
 import EditorSelectPage from '@/pages/customer/editorSelect.tsx'
+import OrderListPage from '@/pages/admin/orderList.tsx'
 
 // const EditorPage = React.lazy(() => import('@/xxx'))
 
@@ -19,6 +20,7 @@ const AppRouters = () => {
             <Route path={routes.EDITOR_SELECT} element={<EditorSelectPage />} />
             {/* ADMIN */}
             <Route path={routes.EDITOR_EDIT} element={<EditorEditPage />} />
+            <Route path={routes.ORDER_LIST} element={<OrderListPage />} />
           </Route>
           <Route path={`/${routes.LOGIN}`} element={<LoginPage />} />
         </Routes>

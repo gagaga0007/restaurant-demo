@@ -43,6 +43,7 @@ import {
   WarningOutlined,
 } from '@ant-design/icons'
 import { EditForm } from '@/components/editor/EditForm.tsx'
+import { BasePage } from '@/components/base/basePage.tsx'
 
 const EditorEditPage = () => {
   const innerElement = useRef<HTMLDivElement>(null)
@@ -347,151 +348,149 @@ const EditorEditPage = () => {
   }, [])
 
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '12px 24px 24px',
-        boxSizing: 'border-box',
-        overflowX: 'hidden',
-        overflowY: 'scroll',
-      }}
-    >
-      <Row>
-        <Col flex="auto">
-          <Space style={{ marginBottom: 12 }}>
-            <Dropdown menu={{ items: templateMenu, onClick: (e) => addTemplate(e.key) }}>
-              <Button icon={<ContainerOutlined />} type="primary" ghost>
-                <Space>
-                  テンプレート
-                  <DownOutlined />
-                </Space>
+    <BasePage>
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Row>
+          <Col flex="auto">
+            <Space style={{ marginBottom: 12 }}>
+              <Dropdown menu={{ items: templateMenu, onClick: (e) => addTemplate(e.key) }}>
+                <Button icon={<ContainerOutlined />} type="primary" ghost>
+                  <Space>
+                    テンプレート
+                    <DownOutlined />
+                  </Space>
+                </Button>
+              </Dropdown>
+              <Upload onChange={onBgImgFileChange} fileList={[]} customRequest={() => {}}>
+                <Button icon={<PictureOutlined />} type="primary" ghost>
+                  背景
+                </Button>
+              </Upload>
+              {!!backgroundImage && (
+                <Button icon={<CloseCircleOutlined />} type="primary" ghost danger onClick={() => onBgImgFileChange()}>
+                  背景を削除
+                </Button>
+              )}
+              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addTable}>
+                テーブル
               </Button>
-            </Dropdown>
-            <Upload onChange={onBgImgFileChange} fileList={[]} customRequest={() => {}}>
-              <Button icon={<PictureOutlined />} type="primary" ghost>
-                背景
+              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addChair}>
+                椅子
               </Button>
-            </Upload>
-            {!!backgroundImage && (
-              <Button icon={<CloseCircleOutlined />} type="primary" ghost danger onClick={() => onBgImgFileChange()}>
-                背景を削除
+              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addCircleWall}>
+                柱
               </Button>
-            )}
-            <Button icon={<PlusOutlined />} type="primary" ghost onClick={addTable}>
-              テーブル
-            </Button>
-            <Button icon={<PlusOutlined />} type="primary" ghost onClick={addChair}>
-              椅子
-            </Button>
-            <Button icon={<PlusOutlined />} type="primary" ghost onClick={addCircleWall}>
-              柱
-            </Button>
-            <Button icon={<PlusOutlined />} type="primary" ghost onClick={addLineWall}>
-              壁
-            </Button>
-            <Upload onChange={addPicture} fileList={[]} customRequest={() => {}}>
-              <Button icon={<PlusOutlined />} type="primary" ghost>
-                画像
+              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addLineWall}>
+                壁
               </Button>
-            </Upload>
-            <Dropdown menu={{ items: customMenu, onClick: (e) => addCustom(e.key) }}>
-              <Button icon={<AppstoreAddOutlined />} type="primary" ghost>
-                <Space>
-                  図形
-                  <DownOutlined />
-                </Space>
+              <Upload onChange={addPicture} fileList={[]} customRequest={() => {}}>
+                <Button icon={<PlusOutlined />} type="primary" ghost>
+                  画像
+                </Button>
+              </Upload>
+              <Dropdown menu={{ items: customMenu, onClick: (e) => addCustom(e.key) }}>
+                <Button icon={<AppstoreAddOutlined />} type="primary" ghost>
+                  <Space>
+                    図形
+                    <DownOutlined />
+                  </Space>
+                </Button>
+              </Dropdown>
+              <Popconfirm
+                title="すべてクリア"
+                description="すべての内容をクリアしてもよろしいですか？この操作を実行すると元に戻せなくなります。"
+                placement="bottom"
+                okText="確定"
+                cancelText="キャンセル"
+                icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />}
+                onConfirm={clearAll}
+              >
+                <Button icon={<DeleteOutlined />} type="primary" ghost danger>
+                  クリア
+                </Button>
+              </Popconfirm>
+            </Space>
+          </Col>
+          <Col flex="none">
+            <Space>
+              <Button icon={<SaveOutlined />} type="primary" onClick={onSaveData}>
+                保存
               </Button>
-            </Dropdown>
-            <Popconfirm
-              title="すべてクリア"
-              description="すべての内容をクリアしてもよろしいですか？この操作を実行すると元に戻せなくなります。"
-              placement="bottom"
-              okText="確定"
-              cancelText="キャンセル"
-              icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />}
-              onConfirm={clearAll}
-            >
-              <Button icon={<DeleteOutlined />} type="primary" ghost danger>
-                クリア
-              </Button>
-            </Popconfirm>
-          </Space>
-        </Col>
-        <Col flex="none">
-          <Space>
-            <Button icon={<SaveOutlined />} type="primary" onClick={onSaveData}>
-              保存
-            </Button>
-            <Popconfirm
-              title="データインポート"
-              description="データをインポートすると既存データは上書きされます。インポートを続けますか？"
-              placement="bottomLeft"
-              okText="確定"
-              cancelText="キャンセル"
-              icon={<WarningOutlined style={{ color: '#ffaad14' }} />}
-              onConfirm={onImportData}
-            >
-              <Button icon={<ImportOutlined />} type="primary" ghost>
-                インポート
-              </Button>
-            </Popconfirm>
-            <Popconfirm
-              title="ブラウザに保存されたデータをクリア"
-              description="ブラウザに保存されたデータをクリアしてもよろしいですか？この操作を実行すると元に戻せなくなります。"
-              placement="bottomLeft"
-              okText="確定"
-              cancelText="キャンセル"
-              icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />}
-              onConfirm={onDeleteData}
-            >
-              <Button icon={<DeleteOutlined />} type="primary" ghost danger>
-                キャッシュクリア
-              </Button>
-            </Popconfirm>
-          </Space>
-        </Col>
-      </Row>
+              <Popconfirm
+                title="データインポート"
+                description="データをインポートすると既存データは上書きされます。インポートを続けますか？"
+                placement="bottomLeft"
+                okText="確定"
+                cancelText="キャンセル"
+                icon={<WarningOutlined style={{ color: '#ffaad14' }} />}
+                onConfirm={onImportData}
+              >
+                <Button icon={<ImportOutlined />} type="primary" ghost>
+                  インポート
+                </Button>
+              </Popconfirm>
+              <Popconfirm
+                title="ブラウザに保存されたデータをクリア"
+                description="ブラウザに保存されたデータをクリアしてもよろしいですか？この操作を実行すると元に戻せなくなります。"
+                placement="bottomLeft"
+                okText="確定"
+                cancelText="キャンセル"
+                icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />}
+                onConfirm={onDeleteData}
+              >
+                <Button icon={<DeleteOutlined />} type="primary" ghost danger>
+                  キャッシュクリア
+                </Button>
+              </Popconfirm>
+            </Space>
+          </Col>
+        </Row>
 
-      <Row style={{ height: '100%' }}>
-        <Col
-          ref={innerElement}
-          span={19}
-          style={{
-            height: '100%',
-            boxSizing: 'border-box',
-            border: '1px solid #cccccc',
-            backgroundImage: `url(${backgroundImage})`,
-            backgroundPosition: 'center',
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
-          }}
-        >
-          <canvas ref={canvasElement}></canvas>
-        </Col>
+        <Row style={{ height: '100%' }}>
+          <Col
+            ref={innerElement}
+            span={19}
+            style={{
+              height: '100%',
+              boxSizing: 'border-box',
+              border: '1px solid #cccccc',
+              backgroundImage: `url(${backgroundImage})`,
+              backgroundPosition: 'center',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+            }}
+          >
+            <canvas ref={canvasElement}></canvas>
+          </Col>
 
-        <Col
-          span={5}
-          style={{
-            height: '100%',
-            padding: '12px 24px',
-            boxSizing: 'border-box',
-            backgroundColor: '#eeeeee',
-            // borderRadius: 12,
-          }}
-        >
-          {selectedObjects.length > 0 ? (
-            <EditForm
-              selectedObjects={selectedObjects}
-              setSelectedObjects={setSelectedObjects}
-              onDeleteObjects={onDeleteObjects}
-            />
-          ) : null}
-        </Col>
-      </Row>
-    </div>
+          <Col
+            span={5}
+            style={{
+              height: '100%',
+              padding: '12px 24px',
+              boxSizing: 'border-box',
+              backgroundColor: '#eeeeee',
+              // borderRadius: 12,
+            }}
+          >
+            {selectedObjects.length > 0 ? (
+              <EditForm
+                selectedObjects={selectedObjects}
+                setSelectedObjects={setSelectedObjects}
+                onDeleteObjects={onDeleteObjects}
+              />
+            ) : null}
+          </Col>
+        </Row>
+      </div>
+    </BasePage>
   )
 }
 
