@@ -8,13 +8,14 @@ import { OrderEditProps } from '@/model/interface/order.ts'
 
 export const CustomerOrderEditor = ({ setIsLogin }: { setIsLogin: (value: boolean) => void }) => {
   const navigate = useNavigate()
-  const { setUserName, setRoomNumber } = useAuth()
+  const { setUserName, setRoomNumber, setUserType } = useAuth()
   const [loading, setLoading] = useState(false)
   const [form] = Form.useForm()
 
   const onSubmit = (data: OrderEditProps) => {
     setLoading(true)
     setTimeout(() => {
+      console.log(data)
       setLoading(false)
       navigate(`/${routes.EDITOR_SELECT}`)
     }, 500)
@@ -23,6 +24,7 @@ export const CustomerOrderEditor = ({ setIsLogin }: { setIsLogin: (value: boolea
   const onBack = () => {
     setUserName(undefined)
     setRoomNumber(undefined)
+    setUserType(undefined)
     setIsLogin(false)
   }
 

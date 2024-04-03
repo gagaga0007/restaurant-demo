@@ -1,10 +1,13 @@
 import { createContext, PropsWithChildren, useContext, useState } from 'react'
+import { UserTypeEnum } from '@/model/interface/base.ts'
 
 interface AuthProps {
   userName: string
   setUserName: (value?: string) => void
   roomNumber: string
   setRoomNumber: (value?: string) => void
+  userType: UserTypeEnum
+  setUserType: (value?: UserTypeEnum) => void
 }
 
 const AuthContext = createContext<AuthProps>(null)
@@ -12,6 +15,7 @@ const AuthContext = createContext<AuthProps>(null)
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [userName, setUserName] = useState<string>()
   const [roomNumber, setRoomNumber] = useState<string>()
+  const [userType, setUserType] = useState<UserTypeEnum>()
 
   return (
     <AuthContext.Provider
@@ -20,6 +24,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         setUserName,
         roomNumber,
         setRoomNumber,
+        userType,
+        setUserType,
       }}
     >
       {children}

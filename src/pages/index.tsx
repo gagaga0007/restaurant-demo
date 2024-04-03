@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 import { useMount } from 'ahooks'
 import { useAuth } from '@/store/authContext.tsx'
 import { routes } from '@/core/routes.ts'
@@ -6,17 +6,17 @@ import { Layout } from 'antd'
 import { BaseHeader } from '@/components/base/baseHeader.tsx'
 import { BaseSider } from '@/components/base/baseSider.tsx'
 import { useMemo } from 'react'
+import { UserTypeEnum } from '@/model/interface/base.ts'
 
 const { Content } = Layout
 
 const IndexPage = () => {
-  const { userName } = useAuth()
-  const location = useLocation()
+  const { userName, userType } = useAuth()
   const navigate = useNavigate()
 
   const isAdminPage = useMemo(() => {
-    return location.pathname.includes('admin')
-  }, [location.pathname])
+    return userType === UserTypeEnum.ADMIN
+  }, [userType])
 
   useMount(() => {
     if (!userName) {

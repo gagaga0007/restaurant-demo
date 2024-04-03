@@ -1,37 +1,10 @@
 import { BasePage } from '@/components/base/basePage.tsx'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useMount } from 'ahooks'
 import { getRandomId } from '@/core/util.ts'
 import { OrderProps, OrderTypeEnum } from '@/model/interface/order.ts'
-import { Button, Space, Table, TableColumnsType, Tag, Typography } from 'antd'
-import { userOrderTypeOptions } from '@/model/options/order.ts'
-
-const columns: TableColumnsType<OrderProps> = [
-  {
-    title: '姓名',
-    dataIndex: 'userName',
-  },
-  {
-    title: '房间号',
-    dataIndex: 'roomName',
-  },
-  {
-    title: '时间',
-    dataIndex: 'dateTime',
-  },
-  {
-    title: '人数',
-    dataIndex: 'peopleNumber',
-  },
-  {
-    title: '类型',
-    dataIndex: 'type',
-    render: (value) => {
-      const item = userOrderTypeOptions.find((v) => v.value === value)
-      return <Tag color={item.color}>{item.key}</Tag>
-    },
-  },
-]
+import { Button, Space, Typography } from 'antd'
+import { OrderTable } from '@/components/order/orderTable.tsx'
 
 const OrderListPage = () => {
   const [data, setData] = useState<OrderProps[]>([])
@@ -44,13 +17,6 @@ const OrderListPage = () => {
   const onSubmit = () => {
     console.log(selectIds)
   }
-
-  const rowSelection = useMemo(() => {
-    return {
-      selectedRowKeys: selectIds,
-      onChange: setSelectIds,
-    }
-  }, [selectIds])
 
   useMount(() => {
     const list = []
@@ -82,8 +48,7 @@ const OrderListPage = () => {
         </Space>
       }
     >
-      {/* @ts-ignore*/}
-      <Table rowKey={(record) => record.id} columns={columns} dataSource={data} rowSelection={rowSelection} />
+      <OrderTable data={data} selectIds={selectIds} setSelectIds={setSelectIds} />
     </BasePage>
   )
 }

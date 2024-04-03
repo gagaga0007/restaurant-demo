@@ -1,12 +1,15 @@
 import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 
+const API_PREFIX = '/api'
+
 const axiosConfig: AxiosRequestConfig = {
+  baseURL: API_PREFIX,
   timeout: 30000,
-  timeoutErrorMessage: '连接超时',
+  timeoutErrorMessage: '接口超时',
   validateStatus: (status) => status < 400,
 }
 
-const createClient = (config?: AxiosRequestConfig) => {
+export const createClient = (config?: AxiosRequestConfig) => {
   const instance = axios.create({ ...axiosConfig, ...config })
   instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig<any>) => {
@@ -34,6 +37,6 @@ const createClient = (config?: AxiosRequestConfig) => {
   return instance
 }
 
-const api = createClient()
+export const api = createClient()
 
-export default api
+export const authApi = createClient({ headers: { Authorization: `Bearer xxx` } })

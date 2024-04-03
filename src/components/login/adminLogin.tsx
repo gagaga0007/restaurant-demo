@@ -4,6 +4,7 @@ import { Button, Form, Input } from 'antd'
 import { UserLoginProps } from '@/model/interface/login.ts'
 import { useNavigate } from 'react-router-dom'
 import { routes } from '@/core/routes.ts'
+import { UserTypeEnum } from '@/model/interface/base.ts'
 
 const initData = {
   userName: 'admin',
@@ -12,7 +13,7 @@ const initData = {
 
 export const AdminLogin = () => {
   const navigate = useNavigate()
-  const { setUserName } = useAuth()
+  const { setUserName, setUserType } = useAuth()
   const [loading, setLoading] = useState(false)
   const [form] = Form.useForm()
 
@@ -20,6 +21,7 @@ export const AdminLogin = () => {
     setLoading(true)
     setTimeout(() => {
       setUserName(data.userName)
+      setUserType(UserTypeEnum.ADMIN)
       setLoading(false)
       navigate(`/${routes.EDITOR_EDIT}`)
     }, 500)

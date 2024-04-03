@@ -7,6 +7,7 @@ import { Spin } from 'antd'
 import { routes } from '@/core/routes.ts'
 import EditorSelectPage from '@/pages/customer/editorSelect.tsx'
 import OrderListPage from '@/pages/admin/orderList.tsx'
+import NotFoundPage from '@/pages/notFound.tsx'
 
 // const EditorPage = React.lazy(() => import('@/xxx'))
 
@@ -23,6 +24,7 @@ const AppRouters = () => {
             <Route path={routes.ORDER_LIST} element={<OrderListPage />} />
           </Route>
           <Route path={`/${routes.LOGIN}`} element={<LoginPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
