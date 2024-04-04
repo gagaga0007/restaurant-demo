@@ -1,5 +1,5 @@
 import { BasePage } from '@/components/base/basePage.tsx'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { fabric } from 'fabric'
 import {
   CHAIR_TYPE_VALUE,

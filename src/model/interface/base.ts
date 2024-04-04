@@ -5,12 +5,19 @@ export interface KeyPairProps {
 
 export interface BaseProps {
   id: string
+  createTime: string
+  createBy: string
 }
 
 export interface BaseApiProps<T> {
   msg: string
   code: number
   data: T
+}
+
+export interface BaseTableProps<T> {
+  data: T[]
+  loading: boolean
 }
 
 export enum UserTypeEnum {

@@ -8,11 +8,10 @@ const { Header } = Layout
 
 export const BaseHeader = () => {
   const navigate = useNavigate()
-  const { userName, setUserName, setRoomNumber } = useAuth()
+  const { userName, onLogout } = useAuth()
 
-  const onLogout = () => {
-    setUserName(undefined)
-    setRoomNumber(undefined)
+  const logout = () => {
+    onLogout()
     navigate(`/${routes.LOGIN}`)
   }
 
@@ -31,15 +30,7 @@ export const BaseHeader = () => {
       <Space size={16}>
         <Typography.Text style={{ color: '#ffffff' }}>欢迎，{userName}</Typography.Text>
         <Tooltip placement="bottom" title="退出登录">
-          <Button
-            type="primary"
-            ghost
-            shape="circle"
-            danger
-            size="small"
-            icon={<LogoutOutlined />}
-            onClick={onLogout}
-          />
+          <Button type="primary" ghost shape="circle" danger size="small" icon={<LogoutOutlined />} onClick={logout} />
         </Tooltip>
       </Space>
     </Header>

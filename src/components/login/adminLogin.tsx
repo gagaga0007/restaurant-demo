@@ -8,7 +8,7 @@ import { UserTypeEnum } from '@/model/interface/base.ts'
 
 const initData = {
   userName: 'admin',
-  password: '123456',
+  password: 'qazplm123',
 }
 
 export const AdminLogin = () => {

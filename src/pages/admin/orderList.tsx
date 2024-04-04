@@ -1,14 +1,27 @@
 import { BasePage } from '@/components/base/basePage.tsx'
 import { useState } from 'react'
 import { useMount } from 'ahooks'
-import { getRandomId } from '@/core/util.ts'
-import { OrderProps, OrderTypeEnum } from '@/model/interface/order.ts'
-import { Button, Space, Typography } from 'antd'
+import { OrderProps } from '@/model/interface/order.ts'
+import { Button, message, Space, Typography } from 'antd'
 import { OrderTable } from '@/components/order/orderTable.tsx'
+import { getOrderList } from '@/model/api/order.ts'
 
 const OrderListPage = () => {
   const [data, setData] = useState<OrderProps[]>([])
+  const [loading, setLoading] = useState(false)
   const [selectIds, setSelectIds] = useState<string[]>([])
+
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const res = await getOrderList()
+      setData(res.rows)
+    } catch (e) {
+      message.error(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const onDeselectAll = () => {
     setSelectIds([])
@@ -18,20 +31,7 @@ const OrderListPage = () => {
     console.log(selectIds)
   }
 
-  useMount(() => {
-    const list = []
-    for (let i = 0; i < 30; i++) {
-      list.push({
-        id: getRandomId(),
-        userName: `user${i + 1}`,
-        roomName: `room${i + 1}`,
-        dateTime: `dateTime${i + 1}`,
-        peopleNumber: `peopleNumber${i + 1}`,
-        type: OrderTypeEnum.BREAKFAST,
-      })
-    }
-    setData(list)
-  })
+  useMount(fetchData)
 
   return (
     <BasePage
@@ -48,7 +48,7 @@ const OrderListPage = () => {
         </Space>
       }
     >
-      <OrderTable data={data} selectIds={selectIds} setSelectIds={setSelectIds} />
+      <OrderTable data={data} selectIds={selectIds} setSelectIds={setSelectIds} loading={loading} />
     </BasePage>
   )
 }
