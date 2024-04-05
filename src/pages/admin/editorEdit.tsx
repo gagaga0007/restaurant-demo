@@ -475,7 +475,6 @@ const EditorEditPage = () => {
               padding: '12px 24px',
               boxSizing: 'border-box',
               backgroundColor: '#eeeeee',
-              // borderRadius: 12,
             }}
           >
             {selectedObjects.length > 0 ? (
