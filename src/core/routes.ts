@@ -2,8 +2,8 @@ export const routes = {
   /** BASE */
   LOGIN: 'login',
   /** ADMIN */
-  EDITOR_EDIT: 'admin/editor-edit',
+  LAYOUT_EDIT: 'admin/layout-edit',
   ORDER_LIST: 'admin/orders',
   /** CUSTOMER */
-  EDITOR_SELECT: 'editor-select',
+  LAYOUT_SELECT: 'layout-select',
 }

@@ -21,8 +21,6 @@ import {
   ID_KEY,
   PARENT_ID_KEY,
   STATUS_KEY,
-  STORAGE_BG_IMAGE_KEY,
-  STORAGE_KEY,
   TABLE_TEXT_TYPE_VALUE,
   TABLE_TYPE_VALUE,
   templateMenu,
@@ -44,15 +42,18 @@ import {
 } from '@ant-design/icons'
 import { EditForm } from '@/components/editor/EditForm.tsx'
 import { BasePage } from '@/components/base/basePage.tsx'
+import { createLayout, editLayout, getLayout } from '@/model/api/layout.ts'
+import { Config } from '@/core/config.ts'
 
-const EditorEditPage = () => {
+const LayoutEditPage = () => {
   const innerElement = useRef<HTMLDivElement>(null)
   const canvasElement = useRef<HTMLCanvasElement>(null)
 
   const canvasObj = useRef<fabric.Canvas | null>(null)
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([])
-
   const [backgroundImage, setBackgroundImage] = useState('')
+
+  const [loading, setLoading] = useState(false)
 
   // 改变背景图
   const setBgImg = (base64: string) => {
@@ -251,6 +252,8 @@ const EditorEditPage = () => {
 
   const onSaveData = async () => {
     try {
+      setLoading(true)
+
       // 默认只包含必要的字段。接受一个参数，包含输出中额外包括的属性名。此处将 data 存入
       const objectsJson = canvasObj.current.toJSON(['data'])
       objectsJson.objects.forEach((e) => {
@@ -267,50 +270,67 @@ const EditorEditPage = () => {
         message.warning('まだ何も追加されていません。何かを追加した後で保存してください')
       } else {
         const json = JSON.stringify(objectsJson)
-        localStorage.setItem(STORAGE_KEY, json)
-        localStorage.setItem(STORAGE_BG_IMAGE_KEY, backgroundImage || '')
-        message.success('保存しました')
+        // localStorage.setItem(STORAGE_KEY, json)
+        // localStorage.setItem(STORAGE_BG_IMAGE_KEY, backgroundImage || '')
+        // TODO: 临时写法，先查有没有 id 为 1 的数据，有则修改，没有则添加
+        const defaultLayout = await getLayout(Config.LAYOUT_ID)
+        const formData = { jsonData: json, imageData: backgroundImage }
+        let res
+        if (defaultLayout.data) {
+          res = await editLayout({ ...formData, id: Config.LAYOUT_ID })
+        } else {
+          res = await createLayout(formData)
+        }
+        if (res.code === 200) {
+          message.success('保存しました')
+        }
       }
     } catch (e) {
-      if (e.message?.includes('Storage')) {
-        message.error('背景画像やデータに保存制限を超える画像が含まれているため、ブラウザのキャッシュに保存できません')
-      } else {
-        console.error(e)
-      }
+      console.error(e)
+    } finally {
+      setLoading(false)
     }
   }
 
   const onImportData = async () => {
     try {
-      const data = localStorage.getItem(STORAGE_KEY)
-      const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
-      if (!data && !bgImage) {
+      setLoading(true)
+
+      const res = await getLayout(Config.LAYOUT_ID)
+      if (!res.data) {
         message.warning('現在ブラウザにはインポートできるデータがありません')
-      } else {
-        if (data) {
-          const objectsJson = JSON.parse(data)
-          canvasObj.current.loadFromJSON(objectsJson, canvasObj.current.renderAll.bind(canvasObj.current))
-        }
-        if (bgImage) {
-          setBgImg(bgImage)
-        }
+        return
+      }
+
+      // const data = localStorage.getItem(STORAGE_KEY)
+      // const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
+      const data = res.data.jsonData
+      const bgImage = res.data.imageData
+      if (data) {
+        const objectsJson = JSON.parse(data)
+        canvasObj.current.loadFromJSON(objectsJson, canvasObj.current.renderAll.bind(canvasObj.current))
+      }
+      if (bgImage) {
+        setBgImg(bgImage)
       }
     } catch (e) {
       message.error('インポート時エラーが発生しました')
+    } finally {
+      setLoading(false)
     }
   }
 
-  const onDeleteData = async () => {
-    const data = localStorage.getItem(STORAGE_KEY)
-    const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
-    if (!data && !bgImage) {
-      message.warning('現在ブラウザに保存されたデータはありません。クリアする必要はありません')
-    } else {
-      localStorage.removeItem(STORAGE_KEY)
-      localStorage.removeItem(STORAGE_BG_IMAGE_KEY)
-      message.success('クリアしました')
-    }
-  }
+  // const onDeleteData = async () => {
+  //   const data = localStorage.getItem(STORAGE_KEY)
+  //   const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
+  //   if (!data && !bgImage) {
+  //     message.warning('現在ブラウザに保存されたデータはありません。クリアする必要はありません')
+  //   } else {
+  //     localStorage.removeItem(STORAGE_KEY)
+  //     localStorage.removeItem(STORAGE_BG_IMAGE_KEY)
+  //     message.success('クリアしました')
+  //   }
+  // }
 
   const updateCanvasContext = (canvas: fabric.Canvas | null) => {
     canvasObj.current = canvas
@@ -358,43 +378,50 @@ const EditorEditPage = () => {
         <Row>
           <Col flex="auto">
             <Space style={{ marginBottom: 12 }}>
-              <Dropdown menu={{ items: templateMenu, onClick: (e) => addTemplate(e.key) }}>
-                <Button icon={<ContainerOutlined />} type="primary" ghost>
+              <Dropdown menu={{ items: templateMenu, onClick: (e) => addTemplate(e.key) }} disabled={loading}>
+                <Button icon={<ContainerOutlined />} type="primary" ghost disabled={loading}>
                   <Space>
                     テンプレート
                     <DownOutlined />
                   </Space>
                 </Button>
               </Dropdown>
-              <Upload onChange={onBgImgFileChange} fileList={[]} customRequest={() => {}}>
-                <Button icon={<PictureOutlined />} type="primary" ghost>
+              <Upload onChange={onBgImgFileChange} fileList={[]} customRequest={() => {}} disabled={loading}>
+                <Button icon={<PictureOutlined />} type="primary" ghost disabled={loading}>
                   背景
                 </Button>
               </Upload>
               {!!backgroundImage && (
-                <Button icon={<CloseCircleOutlined />} type="primary" ghost danger onClick={() => onBgImgFileChange()}>
+                <Button
+                  icon={<CloseCircleOutlined />}
+                  type="primary"
+                  ghost
+                  danger
+                  onClick={() => onBgImgFileChange()}
+                  disabled={loading}
+                >
                   背景を削除
                 </Button>
               )}
-              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addTable}>
+              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addTable} disabled={loading}>
                 テーブル
               </Button>
-              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addChair}>
+              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addChair} disabled={loading}>
                 椅子
               </Button>
-              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addCircleWall}>
+              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addCircleWall} disabled={loading}>
                 柱
               </Button>
-              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addLineWall}>
+              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addLineWall} disabled={loading}>
                 壁
               </Button>
-              <Upload onChange={addPicture} fileList={[]} customRequest={() => {}}>
-                <Button icon={<PlusOutlined />} type="primary" ghost>
+              <Upload onChange={addPicture} fileList={[]} customRequest={() => {}} disabled={loading}>
+                <Button icon={<PlusOutlined />} type="primary" ghost disabled={loading}>
                   画像
                 </Button>
               </Upload>
-              <Dropdown menu={{ items: customMenu, onClick: (e) => addCustom(e.key) }}>
-                <Button icon={<AppstoreAddOutlined />} type="primary" ghost>
+              <Dropdown menu={{ items: customMenu, onClick: (e) => addCustom(e.key) }} disabled={loading}>
+                <Button icon={<AppstoreAddOutlined />} type="primary" ghost disabled={loading}>
                   <Space>
                     図形
                     <DownOutlined />
@@ -409,8 +436,9 @@ const EditorEditPage = () => {
                 cancelText="キャンセル"
                 icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />}
                 onConfirm={clearAll}
+                disabled={loading}
               >
-                <Button icon={<DeleteOutlined />} type="primary" ghost danger>
+                <Button icon={<DeleteOutlined />} type="primary" ghost danger disabled={loading}>
                   クリア
                 </Button>
               </Popconfirm>
@@ -418,9 +446,20 @@ const EditorEditPage = () => {
           </Col>
           <Col flex="none">
             <Space>
-              <Button icon={<SaveOutlined />} type="primary" onClick={onSaveData}>
-                保存
-              </Button>
+              <Popconfirm
+                title="保存"
+                description="保存会覆盖当前数据。インポートを続けますか？"
+                placement="bottomLeft"
+                okText="確定"
+                cancelText="キャンセル"
+                icon={<WarningOutlined style={{ color: '#ffaad14' }} />}
+                onConfirm={onSaveData}
+                disabled={loading}
+              >
+                <Button icon={<SaveOutlined />} type="primary" loading={loading}>
+                  保存
+                </Button>
+              </Popconfirm>
               <Popconfirm
                 title="データインポート"
                 description="データをインポートすると既存データは上書きされます。インポートを続けますか？"
@@ -429,24 +468,25 @@ const EditorEditPage = () => {
                 cancelText="キャンセル"
                 icon={<WarningOutlined style={{ color: '#ffaad14' }} />}
                 onConfirm={onImportData}
+                disabled={loading}
               >
-                <Button icon={<ImportOutlined />} type="primary" ghost>
+                <Button icon={<ImportOutlined />} type="primary" ghost loading={loading}>
                   インポート
                 </Button>
               </Popconfirm>
-              <Popconfirm
-                title="ブラウザに保存されたデータをクリア"
-                description="ブラウザに保存されたデータをクリアしてもよろしいですか？この操作を実行すると元に戻せなくなります。"
-                placement="bottomLeft"
-                okText="確定"
-                cancelText="キャンセル"
-                icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />}
-                onConfirm={onDeleteData}
-              >
-                <Button icon={<DeleteOutlined />} type="primary" ghost danger>
-                  キャッシュクリア
-                </Button>
-              </Popconfirm>
+              {/*<Popconfirm*/}
+              {/*  title="ブラウザに保存されたデータをクリア"*/}
+              {/*  description="ブラウザに保存されたデータをクリアしてもよろしいですか？この操作を実行すると元に戻せなくなります。"*/}
+              {/*  placement="bottomLeft"*/}
+              {/*  okText="確定"*/}
+              {/*  cancelText="キャンセル"*/}
+              {/*  icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />}*/}
+              {/*  onConfirm={onDeleteData}*/}
+              {/*>*/}
+              {/*  <Button icon={<DeleteOutlined />} type="primary" ghost danger>*/}
+              {/*    キャッシュクリア*/}
+              {/*  </Button>*/}
+              {/*</Popconfirm>*/}
             </Space>
           </Col>
         </Row>
@@ -491,4 +531,4 @@ const EditorEditPage = () => {
   )
 }
 
-export default EditorEditPage
+export default LayoutEditPage

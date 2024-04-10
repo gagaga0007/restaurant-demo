@@ -12,34 +12,7 @@ export const CustomerLogin = () => {
   const navigate = useNavigate()
   const { setUserName, setUserType } = useAuth()
   const [loading, setLoading] = useState(false)
-  // const [rooms, setRooms] = useState<RoomProps[]>([])
-  // const [, setOptions] = useState<{ label: string; value: string }[]>([])
   const [form] = Form.useForm()
-
-  // const fetchData = async () => {
-  //   try {
-  //     setLoading(true)
-  //
-  //     const room1 = async () => await getRooms({ parentId: 101 })
-  //     const room2 = async () => await getRooms({ parentId: 102 })
-  //     const room3 = async () => await getRooms({ parentId: 103 })
-  //     const room4 = async () => await getRooms({ parentId: 104 })
-  //     const room5 = async () => await getRooms({ parentId: 105 })
-  //     const room6 = async () => await getRooms({ parentId: 106 })
-  //     const res = await Promise.all([room1(), room2(), room3(), room4(), room5(), room6()])
-  //
-  //     let list: RoomProps[] = []
-  //     res.forEach((v) => {
-  //       list = list.concat(v.data)
-  //     })
-  //     setRooms(list)
-  //     setOptions(list.map((v) => ({ label: v.deptName, value: v.deptName })))
-  //   } catch (e) {
-  //     console.log(e)
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
 
   const onSubmit = async (data: OrderEditProps) => {
     try {
@@ -53,7 +26,7 @@ export const CustomerLogin = () => {
 
       setUserName(data.userName)
       setUserType(UserTypeEnum.CUSTOMER)
-      navigate(`/${routes.EDITOR_SELECT}`)
+      navigate(`/${routes.LAYOUT_SELECT}`)
     } catch (e) {
       message.error(e.message)
     } finally {
@@ -61,40 +34,57 @@ export const CustomerLogin = () => {
     }
   }
 
-  // const filterOption = (input: string, option?: { key: string; value: string; children: string }) => {
-  //   return (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
-  // }
+  const disabledTime = () => {
+    const range = (start: number, end: number) => {
+      const result = []
+      for (let i = start; i < end; i++) {
+        result.push(i)
+      }
+      return result
+    }
 
-  // const getOptions = (text: string) => {
-  //   const filter = rooms.filter((v) => v.deptName.toLowerCase().includes(text.toLowerCase()))
-  //   setOptions(filter.map((v) => ({ label: v.deptName, value: v.deptName })))
-  // }
-
-  // useMount(fetchData)
+    return { disabledHours: () => range(0, 60).splice(0, 17) }
+  }
 
   return (
-    <Form form={form} onFinish={onSubmit} disabled={loading} labelAlign="left" labelCol={{ span: 5 }}>
-      <Form.Item rules={[{ required: true, message: '请输入入住姓名' }]} name="userName" label="入住姓名">
-        <Input placeholder="请输入入住时登记的姓名" />
+    <Form form={form} onFinish={onSubmit} disabled={loading} labelAlign="left" labelCol={{ span: 7 }}>
+      <Form.Item
+        rules={[{ required: true, message: 'ご宿泊様お名前を入力してください' }]}
+        name="userName"
+        label="ご宿泊様お名前"
+      >
+        <Input placeholder="ご宿泊様お名前を入力してください" />
       </Form.Item>
-      {/*<Form.Item rules={[{ required: true, message: '请输入房间号' }]} name="roomName" label="房间号">*/}
-      {/*  <Select showSearch placeholder="请选择房间号" filterOption={filterOption}>*/}
-      {/*    {rooms.map((v) => (*/}
-      {/*      <Select.Option key={v.deptId} value={v.deptName}>*/}
-      {/*        {v.deptName}*/}
-      {/*      </Select.Option>*/}
-      {/*    ))}*/}
-      {/*  </Select>*/}
-      {/*  /!*<AutoComplete options={options} onSearch={getOptions} placeholder="请选择房间号" />*!/*/}
-      {/*</Form.Item>*/}
-      <Form.Item rules={[{ required: true, message: '请输入就餐人数' }]} name="numberOfDiners" label="就餐人数">
-        <InputNumber placeholder="请输入就餐人数" min={0} max={99} step={1} precision={0} style={{ width: '100%' }} />
+      <Form.Item
+        rules={[{ required: true, message: 'お食事予約人数を入力してください' }]}
+        name="numberOfDiners"
+        label="お食事予約人数"
+      >
+        <InputNumber
+          placeholder="お食事予約人数を入力してください"
+          min={0}
+          max={99}
+          step={1}
+          precision={0}
+          style={{ width: '100%' }}
+        />
       </Form.Item>
-      <Form.Item rules={[{ required: true, message: '请选择就餐时间' }]} name="mealTime" label="就餐时间">
-        <DatePicker showTime placeholder="请选择就餐时间" style={{ width: '100%' }} />
+      <Form.Item
+        rules={[{ required: true, message: 'お食事ご来場日時を入力してください' }]}
+        name="mealTime"
+        label="お食事ご来場日時"
+      >
+        <DatePicker
+          showTime={{ format: 'HH:mm', minuteStep: 10, hideDisabledOptions: true }}
+          format="YYYY-MM-DD HH:mm"
+          disabledTime={disabledTime}
+          showNow={false}
+          placeholder="お食事ご来場日時を入力してください"
+          style={{ width: '100%' }}
+        />
       </Form.Item>
       <Button type="primary" block loading={loading} htmlType="submit">
-        确认
+        確認
       </Button>
     </Form>
   )

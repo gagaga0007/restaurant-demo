@@ -23,7 +23,7 @@ export const AdminLogin = () => {
       setUserName(data.userName)
       setUserType(UserTypeEnum.ADMIN)
       setLoading(false)
-      navigate(`/${routes.EDITOR_EDIT}`)
+      navigate(`/${routes.LAYOUT_EDIT}`)
     }, 500)
   }
 
@@ -33,17 +33,21 @@ export const AdminLogin = () => {
       onFinish={onSubmit}
       disabled={loading}
       labelAlign="left"
-      labelCol={{ span: 4 }}
+      labelCol={{ span: 5 }}
       initialValues={initData}
     >
-      <Form.Item rules={[{ required: true, message: '请输入用户名' }]} name="userName" label="用户名">
-        <Input placeholder="请输入用户名" />
+      <Form.Item rules={[{ required: true, message: '利用者名を入力してください' }]} name="userName" label="利用者名">
+        <Input placeholder="利用者名を入力してください" />
       </Form.Item>
-      <Form.Item rules={[{ required: true, message: '请输入密码' }]} name="password" label="密码">
-        <Input.Password placeholder="请输入密码" />
+      <Form.Item
+        rules={[{ required: true, message: 'パスワードを入力してください' }]}
+        name="password"
+        label="パスワード"
+      >
+        <Input.Password placeholder="パスワードを入力してください" />
       </Form.Item>
       <Button type="primary" block loading={loading} htmlType="submit">
-        确认
+        確認
       </Button>
     </Form>
   )

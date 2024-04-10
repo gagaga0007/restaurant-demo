@@ -35,26 +35,26 @@ const LoginPage = () => {
     >
       <Card
         css={css`
-          width: 25%;
+          width: 28%;
           box-shadow: rgba(0, 0, 0, 0.12) 0 0 35px 15px;
         `}
       >
         <Typography.Title
           css={css`
             margin: 0;
-            letter-spacing: 6px;
+            letter-spacing: 2px;
             text-align: center;
           `}
-          level={2}
+          level={3}
         >
-          XXX酒店{isAdmin ? '管理员登录' : '餐位预定'}
+          雲仙みかどホテル{isAdmin ? '管理者のログイン' : '食事の予約'}
         </Typography.Title>
         <Divider />
         {isAdmin ? <AdminLogin /> : <CustomerLogin />}
       </Card>
       <Button type="link" onClick={onChangeUserType}>
         <Space>
-          <span>切换至{!isAdmin ? '管理员' : '顾客'}</span>
+          <span>{!isAdmin ? '管理者' : 'お客様'}側に切り替える</span>
           <RightOutlined />
         </Space>
       </Button>

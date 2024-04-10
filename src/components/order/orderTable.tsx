@@ -10,11 +10,11 @@ interface OrderTableProps extends BaseTableProps<OrderProps> {
 }
 
 const columns: TableColumnsType<OrderProps> = [
-  { title: '姓名', dataIndex: 'userName' },
-  { title: '房间号', dataIndex: 'deptName' },
+  { title: '名前', dataIndex: 'userName' },
+  { title: '部屋番号', dataIndex: 'deptName' },
   { title: '人数', dataIndex: 'numberOfDiners' },
-  { title: '就餐时间', dataIndex: 'mealTime', render: (value) => getDate(value, { withTime: true }) },
-  { title: '填写时间', dataIndex: 'createTime', render: (value) => getDate(value, { withTime: true }) },
+  { title: '食事時間', dataIndex: 'mealTime', render: (value) => getDate(value, { withTime: true }) },
+  { title: '記入時間', dataIndex: 'createTime', render: (value) => getDate(value, { withTime: true }) },
   // {
   //   title: '类型',
   //   dataIndex: 'type',

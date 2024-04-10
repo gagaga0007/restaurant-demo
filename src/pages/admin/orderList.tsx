@@ -35,15 +35,15 @@ const OrderListPage = () => {
 
   return (
     <BasePage
-      title="预订列表"
+      title="予約リスト"
       extra={
         <Space>
-          <Typography.Text>已选 {selectIds.length} 项</Typography.Text>
+          <Typography.Text> {selectIds.length} 項目を選び</Typography.Text>
           <Button type="primary" ghost onClick={onDeselectAll} disabled={selectIds.length === 0}>
-            取消选择
+            選択をキャンセルする
           </Button>
           <Button type="primary" onClick={onSubmit} disabled={selectIds.length === 0}>
-            提交
+            送信
           </Button>
         </Space>
       }

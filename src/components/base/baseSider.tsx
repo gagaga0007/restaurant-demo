@@ -7,8 +7,8 @@ import { EditOutlined, UnorderedListOutlined } from '@ant-design/icons'
 const { Sider } = Layout
 
 const siderMenu: Required<MenuProps>['items'][number][] = [
-  { key: `/${routes.EDITOR_EDIT}`, label: '编辑布局', icon: <EditOutlined /> },
-  { key: `/${routes.ORDER_LIST}`, label: '预订列表', icon: <UnorderedListOutlined /> },
+  { key: `/${routes.LAYOUT_EDIT}`, label: 'レイアウト変更', icon: <EditOutlined /> },
+  { key: `/${routes.ORDER_LIST}`, label: '予覧リスト', icon: <UnorderedListOutlined /> },
 ]
 
 export const BaseSider = () => {

@@ -1,23 +1,19 @@
 import { BasePage } from '@/components/base/basePage.tsx'
 import { useCallback, useRef, useState } from 'react'
 import { fabric } from 'fabric'
-import {
-  CHAIR_TYPE_VALUE,
-  defaultChairColor,
-  defaultFillAlpha,
-  STORAGE_BG_IMAGE_KEY,
-  STORAGE_KEY,
-} from '@/model/options/editor.tsx'
+import { CHAIR_TYPE_VALUE, defaultChairColor, defaultFillAlpha } from '@/model/options/editor.tsx'
 import { Button, Col, message, Row, Tag } from 'antd'
 import { SaveOutlined } from '@ant-design/icons'
 import { useMount, useUnmount } from 'ahooks'
+import { getLayout } from '@/model/api/layout.ts'
+import { Config } from '@/core/config.ts'
 
 interface SelectProps {
   id: string
   name?: string
 }
 
-const EditorSelectPage = () => {
+const LayoutSelectPage = () => {
   const innerElement = useRef<HTMLDivElement>(null)
   const canvasElement = useRef<HTMLCanvasElement>(null)
 
@@ -26,6 +22,7 @@ const EditorSelectPage = () => {
   const selectIds = useRef<string[]>([])
 
   const [backgroundImage, setBackgroundImage] = useState('')
+  const [loading, setLoading] = useState(false)
 
   // 改变背景图
   const setBgImg = (base64: string) => {
@@ -88,27 +85,35 @@ const EditorSelectPage = () => {
 
   const onImportData = useCallback(async () => {
     try {
-      const data = localStorage.getItem(STORAGE_KEY)
-      const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
-      if (!data && !bgImage) {
+      setLoading(true)
+
+      const res = await getLayout(Config.LAYOUT_ID)
+      if (!res.data) {
         message.warning('現在ブラウザにはインポートできるデータがありません')
-      } else {
-        if (data) {
-          const objectsJson = JSON.parse(data)
-          // 使每个元素都不可选择（只读状态）
-          objectsJson.objects.forEach((v: fabric.Object) => {
-            v.selectable = false
-          })
-          // 渲染到画布
-          canvasObj.current.loadFromJSON(objectsJson, canvasObj.current.renderAll.bind(canvasObj.current))
-        }
-        if (bgImage) {
-          setBgImg(bgImage)
-        }
+        return
+      }
+
+      // const data = localStorage.getItem(STORAGE_KEY)
+      // const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
+      const data = res.data.jsonData
+      const bgImage = res.data.imageData
+      if (data) {
+        const objectsJson = JSON.parse(data)
+        // 使每个元素都不可选择（只读状态）
+        objectsJson.objects.forEach((v: fabric.Object) => {
+          v.selectable = false
+        })
+        // 渲染到画布
+        canvasObj.current?.loadFromJSON(objectsJson, canvasObj.current.renderAll.bind(canvasObj.current))
+      }
+      if (bgImage) {
+        setBgImg(bgImage)
       }
     } catch (e) {
       console.error(e)
       message.error('インポート時エラーが発生しました')
+    } finally {
+      setLoading(false)
     }
   }, [])
 
@@ -152,7 +157,7 @@ const EditorSelectPage = () => {
       >
         <Row style={{ marginBottom: 16 }}>
           <Col flex="auto" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-            当前已选：
+            既に選：
             {selectedObjects.map((v) => (
               <Tag key={v.id} closable onClose={() => onRemoveSelect(v.id)}>
                 {v.name || v.id}
@@ -160,7 +165,7 @@ const EditorSelectPage = () => {
             ))}
           </Col>
           <Col flex="none">
-            <Button icon={<SaveOutlined />} type="primary" onClick={onSaveData}>
+            <Button icon={<SaveOutlined />} type="primary" onClick={onSaveData} loading={loading}>
               保存
             </Button>
           </Col>
@@ -184,4 +189,4 @@ const EditorSelectPage = () => {
   )
 }
 
-export default EditorSelectPage
+export default LayoutSelectPage

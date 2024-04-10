@@ -15,6 +15,11 @@ export interface BaseApiProps<T> {
   data: T
 }
 
+export interface BaseApiResultProps {
+  msg: string
+  code: number
+}
+
 export interface BaseTableProps<T> {
   data: T[]
   loading: boolean

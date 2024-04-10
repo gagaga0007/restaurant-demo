@@ -1,11 +1,11 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import IndexPage from '@/pages'
-import EditorEditPage from '@/pages/admin/editorEdit.tsx'
+import LayoutEditPage from '@/pages/admin/layoutEdit.tsx'
 import LoginPage from '@/pages/login.tsx'
 import { Suspense } from 'react'
 import { Spin } from 'antd'
 import { routes } from '@/core/routes.ts'
-import EditorSelectPage from '@/pages/customer/editorSelect.tsx'
+import LayoutSelectPage from '@/pages/customer/layoutSelect.tsx'
 import OrderListPage from '@/pages/admin/orderList.tsx'
 import NotFoundPage from '@/pages/notFound.tsx'
 
@@ -18,9 +18,9 @@ const AppRouters = () => {
         <Routes>
           <Route path="/" element={<IndexPage />}>
             {/* CUSTOMER */}
-            <Route path={routes.EDITOR_SELECT} element={<EditorSelectPage />} />
+            <Route path={routes.LAYOUT_SELECT} element={<LayoutSelectPage />} />
             {/* ADMIN */}
-            <Route path={routes.EDITOR_EDIT} element={<EditorEditPage />} />
+            <Route path={routes.LAYOUT_EDIT} element={<LayoutEditPage />} />
             <Route path={routes.ORDER_LIST} element={<OrderListPage />} />
           </Route>
           <Route path={`/${routes.LOGIN}`} element={<LoginPage />} />
