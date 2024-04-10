@@ -26,7 +26,7 @@ export const CustomerLogin = () => {
 
       setUserName(data.userName)
       setUserType(UserTypeEnum.CUSTOMER)
-      navigate(`/${routes.LAYOUT_SELECT}`)
+      navigate(`/${routes.LAYOUT_SELECT}`, { state: { numberOfDiners: data.numberOfDiners } })
     } catch (e) {
       message.error(e.message)
     } finally {
