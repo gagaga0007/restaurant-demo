@@ -1,8 +1,12 @@
+/** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react'
 import { useEffect, useRef, useState } from 'react'
 import { fabric } from 'fabric'
 import { UploadChangeParam } from 'antd/lib/upload'
 import { addCircle, addImage, addRect, addText, addTriangle, convertFileToBase64, getRandomId } from '@/core/util.ts'
 import {
+  CANVAS_HEIGHT,
+  CANVAS_WIDTH,
   CHAIR_TYPE_VALUE,
   customMenu,
   defaultChairColor,
@@ -56,24 +60,24 @@ const LayoutEditPage = () => {
   const [loading, setLoading] = useState(false)
 
   // 改变背景图
-  const setBgImg = (base64: string) => {
-    // 盒子宽度
-    const innerWidth = innerElement.current!.getBoundingClientRect().width
-    // 通过 Image 对象获取图片宽高，并设置 canvas 宽高
-    const image = new Image()
-    image.src = base64
-    image.onload = () => {
-      const height = (image.height * innerWidth) / image.width
-      innerElement.current!.style.height = height + 'px'
-      canvasObj.current!.setHeight(height)
-
-      const borderWidth = 2
-      canvasElement.current!.height = height - borderWidth
-      canvasElement.current!.width = innerWidth - borderWidth
-
-      setBackgroundImage(base64)
-    }
-  }
+  // const setBgImg = (base64: string) => {
+  //   // 盒子宽度
+  //   const innerWidth = innerElement.current!.getBoundingClientRect().width
+  //   // 通过 Image 对象获取图片宽高，并设置 canvas 宽高
+  //   const image = new Image()
+  //   image.src = base64
+  //   image.onload = () => {
+  //     const height = (image.height * innerWidth) / image.width
+  //     innerElement.current!.style.height = height + 'px'
+  //     canvasObj.current!.setHeight(height)
+  //
+  //     const borderWidth = 2
+  //     canvasElement.current!.height = height - borderWidth
+  //     canvasElement.current!.width = innerWidth - borderWidth
+  //
+  //     setBackgroundImage(base64)
+  //   }
+  // }
 
   // 上传背景图触发
   const onBgImgFileChange = async (fileInfo?: UploadChangeParam) => {
@@ -84,7 +88,8 @@ const LayoutEditPage = () => {
       // 转成 Base64
       const base64 = await convertFileToBase64(file as File)
       // 设置背景图
-      setBgImg(base64)
+      // setBgImg(base64)
+      setBackgroundImage(base64)
     }
   }
 
@@ -270,8 +275,6 @@ const LayoutEditPage = () => {
         message.warning('まだ何も追加されていません。何かを追加した後で保存してください')
       } else {
         const json = JSON.stringify(objectsJson)
-        // localStorage.setItem(STORAGE_KEY, json)
-        // localStorage.setItem(STORAGE_BG_IMAGE_KEY, backgroundImage || '')
         // TODO: 临时写法，先查有没有 id 为 1 的数据，有则修改，没有则添加
         const defaultLayout = await getLayout(Config.LAYOUT_ID)
         const formData = { jsonData: json, imageData: backgroundImage }
@@ -311,7 +314,8 @@ const LayoutEditPage = () => {
         canvasObj.current.loadFromJSON(objectsJson, canvasObj.current.renderAll.bind(canvasObj.current))
       }
       if (bgImage) {
-        setBgImg(bgImage)
+        // setBgImg(bgImage)
+        setBackgroundImage(bgImage)
       }
     } catch (e) {
       message.error('インポート時エラーが発生しました')
@@ -339,13 +343,13 @@ const LayoutEditPage = () => {
   useEffect(() => {
     setTimeout(() => {
       // 设置宽高
-      const { width, height } = innerElement.current!.getBoundingClientRect()
-      const canvasWidth = width - 2
-      const canvasHeight = height - 2
-      canvasElement.current!.width = canvasWidth
-      canvasElement.current!.height = canvasHeight
-      canvasElement.current!.style.width = canvasWidth + 'px'
-      canvasElement.current!.style.height = canvasHeight + 'px'
+      // const { width, height } = innerElement.current!.getBoundingClientRect()
+      // const canvasWidth = width - 2
+      // const canvasHeight = height - 2
+      // canvasElement.current!.width = canvasWidth
+      // canvasElement.current!.height = canvasHeight
+      // canvasElement.current!.style.width = canvasWidth + 'px'
+      // canvasElement.current!.style.height = canvasHeight + 'px'
 
       // 初始化
       const fabricCanvas = new fabric.Canvas(canvasElement.current)
@@ -376,7 +380,7 @@ const LayoutEditPage = () => {
         }}
       >
         <Row>
-          <Col flex="auto">
+          <Col flex="auto" style={{ overflowX: 'auto' }}>
             <Space style={{ marginBottom: 12 }}>
               <Dropdown menu={{ items: templateMenu, onClick: (e) => addTemplate(e.key) }} disabled={loading}>
                 <Button icon={<ContainerOutlined />} type="primary" ghost disabled={loading}>
@@ -491,31 +495,51 @@ const LayoutEditPage = () => {
           </Col>
         </Row>
 
-        <Row style={{ height: '100%' }}>
+        <Row style={{ flex: 1, height: 0 }}>
           <Col
-            ref={innerElement}
-            span={19}
+            lg={19}
+            span={24}
             style={{
               height: '100%',
               boxSizing: 'border-box',
               border: '1px solid #cccccc',
-              backgroundImage: `url(${backgroundImage})`,
-              backgroundPosition: 'center',
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
+              overflow: 'auto',
             }}
           >
-            <canvas ref={canvasElement}></canvas>
+            <div
+              ref={innerElement}
+              style={{
+                width: CANVAS_WIDTH,
+                height: CANVAS_HEIGHT,
+                backgroundImage: `url(${backgroundImage})`,
+                backgroundPosition: 'center',
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+              }}
+            >
+              <canvas
+                ref={canvasElement}
+                width={CANVAS_WIDTH}
+                height={CANVAS_HEIGHT}
+                style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }}
+              ></canvas>
+            </div>
           </Col>
 
           <Col
-            span={5}
-            style={{
-              height: '100%',
-              padding: '12px 24px',
-              boxSizing: 'border-box',
-              backgroundColor: '#eeeeee',
-            }}
+            css={css`
+              height: 100%;
+              padding: 12px 24px;
+              box-sizing: border-box;
+              background-color: #eeeeee;
+
+              @media screen and (max-width: ${Config.MOBILE_WIDTH}px) {
+                height: auto;
+                margin-top: 24px;
+              }
+            `}
+            lg={5}
+            span={24}
           >
             {selectedObjects.length > 0 ? (
               <EditForm

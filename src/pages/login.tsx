@@ -7,6 +7,7 @@ import { RightOutlined } from '@ant-design/icons'
 import { AdminLogin } from '@/components/login/adminLogin.tsx'
 import { CustomerLogin } from '@/components/login/customerLogin.tsx'
 import { useAuth } from '@/store/authContext.tsx'
+import { Config } from '@/core/config.ts'
 
 const LoginPage = () => {
   const { setUserName, setRoomNumber } = useAuth()
@@ -35,8 +36,12 @@ const LoginPage = () => {
     >
       <Card
         css={css`
-          width: 28%;
+          width: 30%;
           box-shadow: rgba(0, 0, 0, 0.12) 0 0 35px 15px;
+
+          @media screen and (max-width: ${Config.MOBILE_WIDTH}px) {
+            width: 100%;
+          }
         `}
       >
         <Typography.Title

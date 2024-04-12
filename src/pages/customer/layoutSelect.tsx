@@ -1,7 +1,11 @@
+/** @jsxImportSource @emotion/react */
+import { css } from '@emotion/react'
 import { BasePage } from '@/components/base/basePage.tsx'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { fabric } from 'fabric'
 import {
+  CANVAS_HEIGHT,
+  CANVAS_WIDTH,
   CHAIR_TYPE_VALUE,
   chairStatusOptions,
   defaultFillAlpha,
@@ -34,25 +38,30 @@ const LayoutSelectPage = () => {
   const [numberOfDiners, setNumberOfDiners] = useState(0)
   const [loading, setLoading] = useState(false)
 
+  const isMouseDownRef = useRef(false) // 鼠标是否按下
+  const isMouseMoveRef = useRef(false) // 鼠标是否移动
+  const touchPageXRef = useRef(0) // 移动端鼠标移动的 X 坐标
+  const touchPageYRef = useRef(0) // 移动端鼠标移动的 Y 坐标
+
   // 改变背景图
-  const setBgImg = (base64: string) => {
-    // 盒子宽度
-    const innerWidth = innerElement.current!.getBoundingClientRect().width
-    // 通过 Image 对象获取图片宽高，并设置 canvas 宽高
-    const image = new Image()
-    image.src = base64
-    image.onload = () => {
-      const height = (image.height * innerWidth) / image.width
-      innerElement.current!.style.height = height + 'px'
-      canvasObj.current!.setHeight(height)
-
-      const borderWidth = 2
-      canvasElement.current!.height = height - borderWidth
-      canvasElement.current!.width = innerWidth - borderWidth
-
-      setBackgroundImage(base64)
-    }
-  }
+  // const setBgImg = (base64: string) => {
+  //   // 盒子宽度
+  //   const innerWidth = innerElement.current!.getBoundingClientRect().width
+  //   // 通过 Image 对象获取图片宽高，并设置 canvas 宽高
+  //   const image = new Image()
+  //   image.src = base64
+  //   image.onload = () => {
+  //     const height = (image.height * innerWidth) / image.width
+  //     innerElement.current!.style.height = height + 'px'
+  //     canvasObj.current!.setHeight(height)
+  //
+  //     const borderWidth = 2
+  //     canvasElement.current!.height = height - borderWidth
+  //     canvasElement.current!.width = innerWidth - borderWidth
+  //
+  //     setBackgroundImage(base64)
+  //   }
+  // }
 
   // 修改椅子状态
   const changeChairStatus = useCallback((status: ChairStatusEnum, target: fabric.Object) => {
@@ -108,9 +117,9 @@ const LayoutSelectPage = () => {
 
   // 点击触发
   const onClickTarget = useCallback(
-    (e: fabric.IEvent<MouseEvent>) => {
-      if (!e.target) return
-      const data = e.target.data
+    (event: fabric.IEvent<MouseEvent>) => {
+      if (!event.target) return
+      const data = event.target.data
       // 只能选择椅子
       if (data?.type !== CHAIR_TYPE_VALUE) return
 
@@ -119,7 +128,7 @@ const LayoutSelectPage = () => {
         onRemoveSelect(data.id)
       } else {
         // 添加
-        onAddSelect(e.target)
+        onAddSelect(event.target)
       }
     },
     [onAddSelect, onRemoveSelect],
@@ -176,8 +185,6 @@ const LayoutSelectPage = () => {
         return
       }
 
-      // const data = localStorage.getItem(STORAGE_KEY)
-      // const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
       const data = res.data.jsonData
       const bgImage = res.data.imageData
       if (data) {
@@ -190,7 +197,8 @@ const LayoutSelectPage = () => {
         canvasObj.current?.loadFromJSON(objectsJson, canvasObj.current.renderAll.bind(canvasObj.current))
       }
       if (bgImage) {
-        setBgImg(bgImage)
+        // setBgImg(bgImage)
+        setBackgroundImage(bgImage)
       }
     } catch (e) {
       console.error(e)
@@ -200,24 +208,87 @@ const LayoutSelectPage = () => {
     }
   }, [])
 
+  // 选择座位数与预定座位数是否相符
   const isSelectWarning = useMemo(() => {
     return selectedObjects.length !== numberOfDiners
   }, [numberOfDiners, selectedObjects.length])
 
+  // 鼠标按下事件
+  const onMouseDown = (event: fabric.IEvent<MouseEvent>) => {
+    // 设置鼠标已按下
+    isMouseDownRef.current = true
+
+    // 移动端专用，用于判断坐标从而计算移动的距离
+    const { e } = event
+    if (e.type === 'touchstart') {
+      if ((e as unknown as TouchEvent).targetTouches?.length > 1) return
+      const touch = (e as unknown as TouchEvent).targetTouches[0]
+
+      touchPageXRef.current = touch.pageX
+      touchPageYRef.current = touch.pageY
+    }
+  }
+
+  // 鼠标移动事件
+  const onMouseMove = (event: fabric.IEvent<MouseEvent>) => {
+    if (isMouseDownRef.current) {
+      // 如果鼠标已按下，设置鼠标正在移动
+      isMouseMoveRef.current = true
+
+      const { e } = event
+      let x, y
+      if (e.type === 'mousemove') {
+        // PC 端
+        x = e.movementX
+        y = e.movementY
+      } else if (e.type === 'touchmove') {
+        // 移动端
+        if ((e as unknown as TouchEvent).targetTouches?.length > 1) return
+        const touch = (e as unknown as TouchEvent).targetTouches[0]
+
+        x = touch.pageX - touchPageXRef.current
+        touchPageXRef.current = touch.pageX
+        y = touch.pageY - touchPageYRef.current
+        touchPageYRef.current = touch.pageY
+      }
+
+      // 根据 x, y 移动画布
+      if (x && y) {
+        const point = new fabric.Point(x, y)
+        canvasObj.current.relativePan(point)
+      }
+    }
+  }
+
+  // 鼠标抬起事件
+  const onMouseUp = (event: fabric.IEvent<MouseEvent>) => {
+    // 如果不是移动画布，再判断点击操作（选择座位）
+    if (!(isMouseDownRef.current && isMouseMoveRef.current)) {
+      onClickTarget(event)
+    }
+    // 初始化鼠标事件（和触摸）
+    isMouseDownRef.current = false
+    isMouseMoveRef.current = false
+    // touchPageXRef.current = 0
+    // touchPageYRef.current = 0
+  }
+
   useMount(() => {
     // 设置宽高
-    const { width, height } = innerElement.current!.getBoundingClientRect()
-    const canvasWidth = width - 2
-    const canvasHeight = height - 2
-    canvasElement.current!.width = canvasWidth
-    canvasElement.current!.height = canvasHeight
-    canvasElement.current!.style.width = canvasWidth + 'px'
-    canvasElement.current!.style.height = canvasHeight + 'px'
+    // const { width, height } = innerElement.current!.getBoundingClientRect()
+    // const canvasWidth = width - 2
+    // const canvasHeight = height - 2
+    // canvasElement.current!.width = canvasWidth
+    // canvasElement.current!.height = canvasHeight
+    // canvasElement.current!.style.width = canvasWidth + 'px'
+    // canvasElement.current!.style.height = canvasHeight + 'px'
 
     // 初始化，使画布不可选择，且鼠标指针改为 pointer
     const fabricCanvas = new fabric.Canvas(canvasElement.current, { selection: false, hoverCursor: 'pointer' })
-    // 监听点击事件
-    fabricCanvas.on('mouse:down', onClickTarget)
+    // 监听鼠标事件（移动端触摸同样触发）
+    fabricCanvas.on('mouse:down', onMouseDown)
+    fabricCanvas.on('mouse:move', onMouseMove)
+    fabricCanvas.on('mouse:up', onMouseUp)
 
     canvasObj.current = fabricCanvas
 
@@ -245,7 +316,20 @@ const LayoutSelectPage = () => {
         }}
       >
         <Row style={{ marginBottom: 16 }}>
-          <Col flex="auto" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+          <Col
+            span={24}
+            lg={{ flex: 'auto' }}
+            css={css`
+              display: flex;
+              align-items: center;
+              flex-wrap: wrap;
+              row-gap: 4px;
+
+              @media screen and (max-width: ${Config.MOBILE_WIDTH}px) {
+                margin-bottom: 8px;
+              }
+            `}
+          >
             <Typography.Text>
               既に選
               <Typography.Text style={{ color: isSelectWarning ? '#f5222d' : '' }}>
@@ -259,25 +343,48 @@ const LayoutSelectPage = () => {
               </Tag>
             ))}
           </Col>
-          <Col flex="none">
-            <Button icon={<SaveOutlined />} type="primary" onClick={onSaveData} loading={loading}>
+          <Col span={24} lg={{ flex: 'none' }}>
+            <Button
+              icon={<SaveOutlined />}
+              type="primary"
+              onClick={onSaveData}
+              loading={loading}
+              css={css`
+                @media screen and (max-width: ${Config.MOBILE_WIDTH}px) {
+                  width: 100%;
+                }
+              `}
+            >
               保存
             </Button>
           </Col>
         </Row>
         <div
-          ref={innerElement}
           style={{
             flex: 1,
             boxSizing: 'border-box',
             border: '1px solid #cccccc',
-            backgroundImage: `url(${backgroundImage})`,
-            backgroundPosition: 'center',
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
+            overflow: 'auto',
           }}
         >
-          <canvas ref={canvasElement}></canvas>
+          <div
+            ref={innerElement}
+            style={{
+              width: CANVAS_WIDTH,
+              height: CANVAS_HEIGHT,
+              backgroundImage: `url(${backgroundImage})`,
+              backgroundPosition: 'center',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+            }}
+          >
+            <canvas
+              ref={canvasElement}
+              width={CANVAS_WIDTH}
+              height={CANVAS_HEIGHT}
+              style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }}
+            ></canvas>
+          </div>
         </div>
       </div>
     </BasePage>

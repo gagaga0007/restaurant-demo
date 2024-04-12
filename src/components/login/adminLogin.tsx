@@ -33,7 +33,7 @@ export const AdminLogin = () => {
       onFinish={onSubmit}
       disabled={loading}
       labelAlign="left"
-      labelCol={{ span: 5 }}
+      layout="vertical"
       initialValues={initData}
     >
       <Form.Item rules={[{ required: true, message: '利用者名を入力してください' }]} name="userName" label="利用者名">

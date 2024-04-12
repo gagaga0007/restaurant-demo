@@ -46,6 +46,7 @@ export const BasePage = ({ title, extra, children }: PropsWithChildren<Props>) =
       <div
         css={css`
           flex: 1;
+          height: 0;
         `}
       >
         {children}

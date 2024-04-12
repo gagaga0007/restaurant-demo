@@ -54,6 +54,9 @@ export const TABLE_TYPE_VALUE = 'table'
 export const CHAIR_TYPE_VALUE = 'chair'
 export const TABLE_TEXT_TYPE_VALUE = 'table_text'
 
+export const CANVAS_WIDTH = 1800
+export const CANVAS_HEIGHT = 1012
+
 export const defaultTableTextOffset = 20
 export const defaultFillAlpha = 0.1
 

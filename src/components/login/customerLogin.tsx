@@ -47,7 +47,7 @@ export const CustomerLogin = () => {
   }
 
   return (
-    <Form form={form} onFinish={onSubmit} disabled={loading} labelAlign="left" labelCol={{ span: 7 }}>
+    <Form form={form} onFinish={onSubmit} disabled={loading} labelAlign="left" layout="vertical">
       <Form.Item
         rules={[{ required: true, message: 'ご宿泊様お名前を入力してください' }]}
         name="userName"
@@ -79,6 +79,8 @@ export const CustomerLogin = () => {
           format="YYYY-MM-DD HH:mm"
           disabledTime={disabledTime}
           showNow={false}
+          changeOnScroll
+          needConfirm={false}
           placeholder="お食事ご来場日時を入力してください"
           style={{ width: '100%' }}
         />
