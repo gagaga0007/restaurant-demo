@@ -136,7 +136,9 @@ const LayoutSelectPage = () => {
 
   const onSaveData = async () => {
     if (selectedObjects.length !== numberOfDiners) {
-      message.error(`您预约的人数为 ${numberOfDiners} 人，当前选择 ${selectedObjects.length} 人，请重新选择`)
+      message.error(
+        `予約人数は ${numberOfDiners} 人，現在選択の人は ${selectedObjects.length} 人です，もう一度選択ください。`,
+      )
       return
     }
 

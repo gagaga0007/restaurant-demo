@@ -452,7 +452,7 @@ const LayoutEditPage = () => {
             <Space>
               <Popconfirm
                 title="保存"
-                description="保存会覆盖当前数据。インポートを続けますか？"
+                description="保存は現在のデータを上書きする。インポートを続けますか？"
                 placement="bottomLeft"
                 okText="確定"
                 cancelText="キャンセル"
