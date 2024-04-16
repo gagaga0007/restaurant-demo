@@ -40,7 +40,8 @@ const LoginPage = () => {
           box-shadow: rgba(0, 0, 0, 0.12) 0 0 35px 15px;
 
           @media screen and (max-width: ${Config.MOBILE_WIDTH}px) {
-            width: 100%;
+            width: 96%;
+            margin: 0 2%;
           }
         `}
       >
@@ -49,6 +50,10 @@ const LoginPage = () => {
             margin: 0;
             letter-spacing: 2px;
             text-align: center;
+
+            @media screen and (max-width: ${Config.MOBILE_WIDTH}px) {
+              font-size: 22px !important;
+            }
           `}
           level={3}
         >

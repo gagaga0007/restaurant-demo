@@ -2,3 +2,19 @@ body {
   margin: 0;
   padding: 0;
 }
+
+@media screen and (max-width: 1100px) {
+  /* ant-picker */
+  .ant-picker-date-panel {
+    width: 250px !important;
+  }
+
+  .ant-picker-time-panel-column {
+    width: 40px !important;
+  }
+
+  .ant-picker-time-panel-cell-inner {
+    width: 30px !important;
+    padding-inline-start: 8px !important;
+  }
+}
