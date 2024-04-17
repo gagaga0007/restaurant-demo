@@ -8,17 +8,14 @@ export const customMenu = [
   {
     label: '矩形',
     key: CustomMenuEnum.RECTANGLE,
-    icon: <PlusOutlined />,
   },
   {
     label: '円形',
     key: CustomMenuEnum.CIRCLE,
-    icon: <PlusOutlined />,
   },
   {
     label: '三角形',
     key: CustomMenuEnum.TRIANGLE,
-    icon: <PlusOutlined />,
   },
 ]
 
