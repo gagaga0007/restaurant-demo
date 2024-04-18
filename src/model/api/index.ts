@@ -16,7 +16,7 @@ export const createClient = (config?: AxiosRequestConfig) => {
       return config
     },
     (error: Error) => {
-      console.log('@@@ Request Error @@@：', error)
+      console.error('@@@ Request Error @@@：', error)
       return Promise.reject(error)
     },
   )
@@ -25,7 +25,7 @@ export const createClient = (config?: AxiosRequestConfig) => {
       return response
     },
     (error: Error) => {
-      console.log('@@@ Response Error @@@：', error)
+      console.error('@@@ Response Error @@@：', error)
       if (axios.isAxiosError(error)) {
         const response = error.response
         return Promise.reject(new Error(response?.data?.message ?? '服务器异常，请联系运维人员'))
