@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '@/store/authContext.tsx'
-import { Button, DatePicker, Form, Input, InputNumber, message } from 'antd'
+import { App, Button, DatePicker, Form, Input, InputNumber } from 'antd'
 import { UserTypeEnum } from '@/model/interface/base.ts'
 import { useNavigate } from 'react-router-dom'
 import { routes } from '@/core/routes.ts'
@@ -10,6 +10,7 @@ import { createOrder } from '@/model/api/order.ts'
 
 export const CustomerLogin = () => {
   const navigate = useNavigate()
+  const { message } = App.useApp()
   const { setUserName, setUserType } = useAuth()
   const [loading, setLoading] = useState(false)
   const [form] = Form.useForm()

@@ -1,4 +1,5 @@
 import {
+  App,
   Button,
   Col,
   ColorPicker,
@@ -7,7 +8,6 @@ import {
   Form,
   Input,
   InputNumber,
-  message,
   Row,
   Space,
   Typography,
@@ -48,6 +48,7 @@ const chairSelectItems = chairStatusOptions.map((v) => ({
 }))
 
 export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects }: Props) => {
+  const { message } = App.useApp()
   const [settingForm] = Form.useForm()
   const [titleName, setTitleName] = useState('')
 

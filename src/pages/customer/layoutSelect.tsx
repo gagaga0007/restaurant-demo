@@ -12,7 +12,7 @@ import {
   STATUS_KEY,
   TABLE_TYPE_VALUE,
 } from '@/model/options/editor.tsx'
-import { Button, Col, message, Row, Tag, Typography } from 'antd'
+import { App, Button, Col, Row, Tag, Typography } from 'antd'
 import { SaveOutlined } from '@ant-design/icons'
 import { useMount, useUnmount } from 'ahooks'
 import { editLayout, getLayout } from '@/model/api/layout.ts'
@@ -27,6 +27,8 @@ interface SelectProps {
 
 const LayoutSelectPage = () => {
   const location = useLocation()
+  const { message } = App.useApp()
+
   const innerElement = useRef<HTMLDivElement>(null)
   const canvasElement = useRef<HTMLCanvasElement>(null)
 

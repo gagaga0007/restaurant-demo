@@ -31,7 +31,7 @@ import {
   TYPE_KEY,
 } from '@/model/options/editor.tsx'
 import { ChairStatusEnum, CustomMenuEnum, TemplateEnum } from '@/model/interface/editor.ts'
-import { Button, Col, Dropdown, message, Popconfirm, Row, Space, theme, Upload } from 'antd'
+import { App, Button, Col, Dropdown, Popconfirm, Row, Space, theme, Upload } from 'antd'
 import {
   AppstoreAddOutlined,
   CloseCircleOutlined,
@@ -52,6 +52,7 @@ const { useToken } = theme
 
 const LayoutEditPage = () => {
   const { token } = useToken()
+  const { message } = App.useApp()
 
   const innerElement = useRef<HTMLDivElement>(null)
   const canvasElement = useRef<HTMLCanvasElement>(null)
