@@ -4,11 +4,11 @@ export interface OrderEditProps {
   numberOfDiners: number
   mealTime: string
   userName: string
-  // type: string
+  deptName: string
 }
 
 export interface OrderProps extends OrderEditProps, BaseProps {
-  deptName: string
+  deleteFlg: number
 }
 
 export interface SearchOrderProps extends Partial<OrderProps> {}

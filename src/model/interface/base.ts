@@ -20,6 +20,13 @@ export interface BaseApiResultProps {
   code: number
 }
 
+export interface BasePageProps<T> {
+  msg: string
+  code: number
+  rows: T[]
+  total: number
+}
+
 export interface BaseTableProps<T> {
   data: T[]
   loading: boolean
@@ -28,4 +35,9 @@ export interface BaseTableProps<T> {
 export enum UserTypeEnum {
   CUSTOMER = 'customer',
   ADMIN = 'admin',
+}
+
+export enum BaseStatusEnum {
+  YES = 1,
+  NO = 0,
 }

@@ -4,7 +4,7 @@ import { useMount } from 'ahooks'
 import { OrderProps } from '@/model/interface/order.ts'
 import { App, Button, Space, Typography } from 'antd'
 import { OrderTable } from '@/components/order/orderTable.tsx'
-import { getOrderList } from '@/model/api/order.ts'
+import { changeOrderStatus, getOrderList } from '@/model/api/order.ts'
 
 const OrderListPage = () => {
   const { message } = App.useApp()
@@ -28,8 +28,22 @@ const OrderListPage = () => {
     setSelectIds([])
   }
 
-  const onSubmit = () => {
-    console.log(selectIds)
+  const onEntrance = async () => {
+    try {
+      setLoading(true)
+
+      const ids = selectIds.join(',')
+      await changeOrderStatus(ids)
+
+      await fetchData()
+      onDeselectAll()
+      // TODO: Translate
+      message.success('修改成功')
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useMount(fetchData)
@@ -43,8 +57,9 @@ const OrderListPage = () => {
           <Button type="primary" ghost onClick={onDeselectAll} disabled={selectIds.length === 0}>
             選択をキャンセルする
           </Button>
-          <Button type="primary" onClick={onSubmit} disabled={selectIds.length === 0}>
-            送信
+          <Button type="primary" onClick={onEntrance} disabled={selectIds.length === 0}>
+            {/* TODO: Translate */}
+            入场
           </Button>
         </Space>
       }

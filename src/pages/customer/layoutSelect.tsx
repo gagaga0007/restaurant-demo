@@ -210,7 +210,7 @@ const LayoutSelectPage = () => {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [message])
 
   // 选择座位数与预定座位数是否相符
   const isSelectWarning = useMemo(() => {

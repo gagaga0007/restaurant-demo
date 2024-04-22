@@ -108,6 +108,7 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
         setTitleName(data.chairName)
       }
 
+      // TODO: Translate
       await message.success('修改成功')
     } catch (e) {
       console.error(e)
