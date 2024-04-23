@@ -2,15 +2,22 @@ import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } 
 
 const API_PREFIX = '/api'
 
-const axiosConfig: AxiosRequestConfig = {
+const defaultConfig: AxiosRequestConfig = {
   baseURL: API_PREFIX,
   timeout: 30000,
   timeoutErrorMessage: '接口超时',
   validateStatus: (status) => status < 400,
 }
 
-export const createClient = (config?: AxiosRequestConfig) => {
-  const instance = axios.create({ ...axiosConfig, ...config })
+export const createClient = (config?: AxiosRequestConfig, withAuth?: boolean) => {
+  const axiosConfig = { ...defaultConfig, ...config }
+  if (withAuth) {
+    // TODO: token
+    const token = 'xxx' // getTokens()
+    axiosConfig.headers['Authorization'] = `Bearer ${token}`
+  }
+
+  const instance = axios.create(axiosConfig)
   instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig<any>) => {
       return config
@@ -39,4 +46,4 @@ export const createClient = (config?: AxiosRequestConfig) => {
 
 export const api = createClient()
 
-export const authApi = createClient({ headers: { Authorization: `Bearer xxx` } })
+export const authApi = createClient({}, true)

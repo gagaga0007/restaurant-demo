@@ -23,6 +23,7 @@ const AppRouters = () => {
             <Route path={routes.LAYOUT_EDIT} element={<LayoutEditPage />} />
             <Route path={routes.ORDER_LIST} element={<OrderListPage />} />
           </Route>
+          {/* ALL */}
           <Route path={`/${routes.LOGIN}`} element={<LoginPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
