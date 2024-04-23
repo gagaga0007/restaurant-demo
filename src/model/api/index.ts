@@ -5,6 +5,7 @@ const API_PREFIX = '/api'
 const defaultConfig: AxiosRequestConfig = {
   baseURL: API_PREFIX,
   timeout: 30000,
+  // TODO: Translate
   timeoutErrorMessage: '接口超时',
   validateStatus: (status) => status < 400,
 }
