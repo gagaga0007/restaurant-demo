@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
-import { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { fabric } from 'fabric'
 import { UploadChangeParam } from 'antd/lib/upload'
 import { addCircle, addImage, addRect, addText, addTriangle, convertFileToBase64, getRandomId } from '@/core/util.ts'
@@ -31,7 +31,7 @@ import {
   TYPE_KEY,
 } from '@/model/options/editor.tsx'
 import { ChairStatusEnum, CustomMenuEnum, TemplateEnum } from '@/model/interface/editor.ts'
-import { Button, Col, Dropdown, message, Popconfirm, Row, Space, Upload } from 'antd'
+import { App, Button, Col, Dropdown, Popconfirm, Row, Space, theme, Upload } from 'antd'
 import {
   AppstoreAddOutlined,
   CloseCircleOutlined,
@@ -39,7 +39,6 @@ import {
   DeleteOutlined,
   DownOutlined,
   ImportOutlined,
-  PictureOutlined,
   PlusOutlined,
   SaveOutlined,
   WarningOutlined,
@@ -49,7 +48,12 @@ import { BasePage } from '@/components/base/basePage.tsx'
 import { createLayout, editLayout, getLayout } from '@/model/api/layout.ts'
 import { Config } from '@/core/config.ts'
 
+const { useToken } = theme
+
 const LayoutEditPage = () => {
+  const { token } = useToken()
+  const { message } = App.useApp()
+
   const innerElement = useRef<HTMLDivElement>(null)
   const canvasElement = useRef<HTMLCanvasElement>(null)
 
@@ -336,6 +340,46 @@ const LayoutEditPage = () => {
   //   }
   // }
 
+  const renderDropdown = useCallback(
+    (menu: React.ReactNode) => {
+      const contentStyle: React.CSSProperties = {
+        backgroundColor: token.colorBgElevated,
+        borderRadius: token.borderRadiusLG,
+        boxShadow: token.boxShadowSecondary,
+      }
+
+      const buttonStyle: React.CSSProperties = {
+        padding: '5px 12px',
+        margin: '-4px 4px 4px',
+        width: 96,
+        textAlign: 'left',
+      }
+
+      return (
+        <div style={contentStyle}>
+          {React.cloneElement(menu as React.ReactElement, { style: { boxShadow: 'none' } })}
+          <Upload
+            accept="image/*"
+            onChange={onBgImgFileChange}
+            fileList={[]}
+            customRequest={() => {}}
+            disabled={loading}
+          >
+            <Button type="text" disabled={loading} style={buttonStyle}>
+              背景
+            </Button>
+          </Upload>
+          <Upload accept="image/*" onChange={addPicture} fileList={[]} customRequest={() => {}} disabled={loading}>
+            <Button type="text" disabled={loading} style={buttonStyle}>
+              画像
+            </Button>
+          </Upload>
+        </div>
+      )
+    },
+    [loading, token.borderRadiusLG, token.boxShadowSecondary, token.colorBgElevated],
+  )
+
   const updateCanvasContext = (canvas: fabric.Canvas | null) => {
     canvasObj.current = canvas
   }
@@ -390,11 +434,31 @@ const LayoutEditPage = () => {
                   </Space>
                 </Button>
               </Dropdown>
-              <Upload onChange={onBgImgFileChange} fileList={[]} customRequest={() => {}} disabled={loading}>
-                <Button icon={<PictureOutlined />} type="primary" ghost disabled={loading}>
-                  背景
+              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addTable} disabled={loading}>
+                テーブル
+              </Button>
+              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addChair} disabled={loading}>
+                椅子
+              </Button>
+              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addCircleWall} disabled={loading}>
+                柱
+              </Button>
+              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addLineWall} disabled={loading}>
+                {/* TODO: Translate */}线
+              </Button>
+              <Dropdown
+                menu={{ items: customMenu, onClick: (e) => addCustom(e.key) }}
+                disabled={loading}
+                dropdownRender={renderDropdown}
+              >
+                <Button icon={<AppstoreAddOutlined />} type="primary" ghost disabled={loading}>
+                  <Space>
+                    {/* TODO: Translate */}
+                    更多
+                    <DownOutlined />
+                  </Space>
                 </Button>
-              </Upload>
+              </Dropdown>
               {!!backgroundImage && (
                 <Button
                   icon={<CloseCircleOutlined />}
@@ -407,31 +471,6 @@ const LayoutEditPage = () => {
                   背景を削除
                 </Button>
               )}
-              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addTable} disabled={loading}>
-                テーブル
-              </Button>
-              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addChair} disabled={loading}>
-                椅子
-              </Button>
-              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addCircleWall} disabled={loading}>
-                柱
-              </Button>
-              <Button icon={<PlusOutlined />} type="primary" ghost onClick={addLineWall} disabled={loading}>
-                壁
-              </Button>
-              <Upload onChange={addPicture} fileList={[]} customRequest={() => {}} disabled={loading}>
-                <Button icon={<PlusOutlined />} type="primary" ghost disabled={loading}>
-                  画像
-                </Button>
-              </Upload>
-              <Dropdown menu={{ items: customMenu, onClick: (e) => addCustom(e.key) }} disabled={loading}>
-                <Button icon={<AppstoreAddOutlined />} type="primary" ghost disabled={loading}>
-                  <Space>
-                    図形
-                    <DownOutlined />
-                  </Space>
-                </Button>
-              </Dropdown>
               <Popconfirm
                 title="すべてクリア"
                 description="すべての内容をクリアしてもよろしいですか？この操作を実行すると元に戻せなくなります。"

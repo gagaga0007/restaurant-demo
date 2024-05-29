@@ -11,7 +11,9 @@ export interface OrderProps extends OrderEditProps, BaseProps {
   deleteFlg: number
 }
 
-export interface SearchOrderProps extends Partial<OrderProps> {}
+export interface SearchOrderProps extends Partial<OrderProps> {
+  page?: number
+}
 
 export enum OrderTypeEnum {
   BREAKFAST = 'breakfast',

@@ -3,26 +3,23 @@ import { ChairStatusEnum, CustomMenuEnum, TemplateEnum } from '../interface/edit
 import { PlusOutlined } from '@ant-design/icons'
 import { KeyPairProps } from '@/model/interface/base.ts'
 
-// 自定义形状菜单
+/** 自定义形状菜单 */
 export const customMenu = [
   {
     label: '矩形',
     key: CustomMenuEnum.RECTANGLE,
-    icon: <PlusOutlined />,
   },
   {
     label: '円形',
     key: CustomMenuEnum.CIRCLE,
-    icon: <PlusOutlined />,
   },
   {
     label: '三角形',
     key: CustomMenuEnum.TRIANGLE,
-    icon: <PlusOutlined />,
   },
 ]
 
-// 自定义模板菜单
+/** 自定义模板菜单 */
 export const templateMenu = [
   {
     label: '2人用テーブル',
@@ -41,25 +38,27 @@ export const templateMenu = [
   },
 ]
 
-export const STORAGE_KEY = 'restaurant-demo-storage-data-key'
-export const STORAGE_BG_IMAGE_KEY = 'bg_image'
-
+/** fabric object data - { key: value } - KEY */
 export const TYPE_KEY = 'type'
 export const NAME_KEY = 'name'
 export const STATUS_KEY = 'status'
 export const ID_KEY = 'id'
 export const PARENT_ID_KEY = 'parent_id'
 
+/** fabric object data - { key: value } - VALUE */
 export const TABLE_TYPE_VALUE = 'table'
 export const CHAIR_TYPE_VALUE = 'chair'
 export const TABLE_TEXT_TYPE_VALUE = 'table_text'
 
+/** Canvas config */
 export const CANVAS_WIDTH = 2000
 export const CANVAS_HEIGHT = 1125
 
+/** Object config */
 export const defaultTableTextOffset = 20
 export const defaultFillAlpha = 0.1
 
+/** Object color */
 export const defaultTableColor = {
   r: 0,
   g: 206,
@@ -90,6 +89,7 @@ export const defaultCustomColor = {
   b: 0,
 }
 
+/** Object options */
 export const defaultRectOptions: fabric.IRectOptions = {
   left: 50,
   top: 100,
@@ -153,9 +153,7 @@ export const defaultTextOptions: fabric.ITextOptions = {
   fontSize: 16,
 }
 
-/**
- * 椅子状态
- */
+/** 椅子状态 */
 export const chairStatusOptions: (KeyPairProps & { color: string })[] = [
   {
     key: 'デフォルト',

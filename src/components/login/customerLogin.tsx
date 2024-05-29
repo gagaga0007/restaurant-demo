@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '@/store/authContext.tsx'
-import { Button, DatePicker, Form, Input, InputNumber, message, Select } from 'antd'
+import { App, Button, DatePicker, Form, Input, InputNumber, Select } from 'antd'
 import { UserTypeEnum } from '@/model/interface/base.ts'
 import { useNavigate } from 'react-router-dom'
 import { routes } from '@/core/routes.ts'
@@ -14,6 +14,7 @@ import { DisabledTimes } from 'rc-picker/lib/interface'
 
 export const CustomerLogin = () => {
   const navigate = useNavigate()
+  const { message } = App.useApp()
   const { setUserName, setRoomNumber, setUserType } = useAuth()
   const [loading, setLoading] = useState(false)
   const [rooms, setRooms] = useState<RoomProps[]>([])
@@ -58,7 +59,9 @@ export const CustomerLogin = () => {
       setUserName(data.userName)
       setRoomNumber(data.deptName)
       setUserType(UserTypeEnum.CUSTOMER)
-      navigate(`/${routes.LAYOUT_SELECT}`, { state: { numberOfDiners: data.numberOfDiners } })
+      navigate(`/${routes.LAYOUT_SELECT}`, {
+        state: { numberOfDiners: data.numberOfDiners, date: dayjs(data.mealTime).format('YYYY-MM-DD') },
+      })
     } catch (e) {
       message.error(e.message)
     } finally {
@@ -98,16 +101,15 @@ export const CustomerLogin = () => {
       >
         <Input placeholder="ご宿泊様お名前を入力してください" />
       </Form.Item>
-      {/* TODO: Translate */}
-      <Form.Item rules={[{ required: true, message: '请输入房间号' }]} name="deptName" label="房间号">
-        <Select showSearch placeholder="请选择房间号" filterOption={filterOption}>
+      <Form.Item rules={[{ required: true, message: '部屋番号を選択してください' }]} name="deptName" label="部屋番号">
+        <Select showSearch placeholder="部屋番号を選択してください" filterOption={filterOption}>
           {rooms.map((v) => (
             <Select.Option key={v.deptId} value={v.deptName}>
               {v.deptName}
             </Select.Option>
           ))}
         </Select>
-        {/*<AutoComplete options={options} onSearch={getOptions} placeholder="请选择房间号" />*/}
+        {/*<AutoComplete options={options} onSearch={getOptions} placeholder="部屋番号を選択してください" />*/}
       </Form.Item>
       <Form.Item
         rules={[{ required: true, message: 'お食事予約人数を入力してください' }]}

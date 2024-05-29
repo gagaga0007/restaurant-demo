@@ -1,4 +1,5 @@
 import {
+  App,
   Button,
   Col,
   ColorPicker,
@@ -7,12 +8,11 @@ import {
   Form,
   Input,
   InputNumber,
-  message,
   Row,
   Space,
   Typography,
 } from 'antd'
-import { ChairStatusEnum, ChangePropertiesProps } from '../../model/interface/editor.ts'
+import { ChairStatusEnum, ChangePropertiesProps } from '@/model/interface/editor.ts'
 import { fabric } from 'fabric'
 import { useEffect, useMemo, useState } from 'react'
 import { ContainerOutlined, CopyOutlined, DeleteOutlined, DownOutlined, SettingOutlined } from '@ant-design/icons'
@@ -28,7 +28,7 @@ import {
   TABLE_TEXT_TYPE_VALUE,
   TYPE_KEY,
 } from '../../model/options/editor.tsx'
-import { getRandomId } from '../../core/util.ts'
+import { getRandomId } from '@/core/util.ts'
 
 interface Props {
   selectedObjects: fabric.Object[]
@@ -48,6 +48,7 @@ const chairSelectItems = chairStatusOptions.map((v) => ({
 }))
 
 export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects }: Props) => {
+  const { message } = App.useApp()
   const [settingForm] = Form.useForm()
   const [titleName, setTitleName] = useState('')
 
@@ -107,8 +108,7 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
         setTitleName(data.chairName)
       }
 
-      // TODO: Translate
-      await message.success('修改成功')
+      await message.success('変更に成功しました')
     } catch (e) {
       console.error(e)
     }

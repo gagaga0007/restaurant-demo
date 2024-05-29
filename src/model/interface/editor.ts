@@ -16,6 +16,7 @@ export enum CustomMenuEnum {
   RECTANGLE = 'rectangle',
   CIRCLE = 'circle',
   TRIANGLE = 'triangle',
+  IMAGE = 'image',
 }
 
 /**

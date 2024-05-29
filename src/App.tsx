@@ -3,7 +3,7 @@ import { AuthProvider } from '@/store/authContext.tsx'
 import 'dayjs/locale/ja.js'
 import locale from 'antd/locale/ja_JP.js'
 import dayjs from 'dayjs'
-import { ConfigProvider } from 'antd'
+import { ConfigProvider, App as AntdApp } from 'antd'
 import { Config } from '@/core/config.ts'
 
 dayjs.locale('ja')
@@ -20,9 +20,11 @@ function App() {
         },
       }}
     >
-      <AuthProvider>
-        <AppRouters />
-      </AuthProvider>
+      <AntdApp>
+        <AuthProvider>
+          <AppRouters />
+        </AuthProvider>
+      </AntdApp>
     </ConfigProvider>
   )
 }
