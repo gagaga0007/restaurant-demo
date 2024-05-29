@@ -1,28 +1,37 @@
 import { BasePage } from '@/components/base/basePage.tsx'
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useMount } from 'ahooks'
 import { OrderProps } from '@/model/interface/order.ts'
-import { App, Button, Space, Typography } from 'antd'
+import { App, Button, Space, TablePaginationConfig, Typography } from 'antd'
 import { OrderTable } from '@/components/order/orderTable.tsx'
 import { changeOrderStatus, getOrderList } from '@/model/api/order.ts'
+
+const pageSize = 10
 
 const OrderListPage = () => {
   const { message } = App.useApp()
   const [data, setData] = useState<OrderProps[]>([])
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const [selectIds, setSelectIds] = useState<string[]>([])
 
-  const fetchData = async () => {
-    try {
-      setLoading(true)
-      const res = await getOrderList()
-      setData(res.rows)
-    } catch (e) {
-      message.error(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const fetchData = useCallback(
+    async (pageNumber: number) => {
+      try {
+        setLoading(true)
+        const res = await getOrderList({ page: pageNumber })
+        setData(res.rows)
+        setTotal(res.total)
+        setPage(pageNumber)
+      } catch (e) {
+        message.error(e.message)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [message],
+  )
 
   const onDeselectAll = () => {
     setSelectIds([])
@@ -35,7 +44,7 @@ const OrderListPage = () => {
       const ids = selectIds.join(',')
       await changeOrderStatus(ids)
 
-      await fetchData()
+      await fetchData(page)
       onDeselectAll()
       // TODO: Translate
       message.success('修改成功')
@@ -46,7 +55,16 @@ const OrderListPage = () => {
     }
   }
 
-  useMount(fetchData)
+  const pagination = useMemo(() => {
+    return {
+      current: page,
+      total: total,
+      pageSize: pageSize,
+      onChange: (page) => fetchData(page),
+    } as TablePaginationConfig
+  }, [fetchData, page, total])
+
+  useMount(() => fetchData(page))
 
   return (
     <BasePage
@@ -64,7 +82,13 @@ const OrderListPage = () => {
         </Space>
       }
     >
-      <OrderTable data={data} selectIds={selectIds} setSelectIds={setSelectIds} loading={loading} />
+      <OrderTable
+        data={data}
+        selectIds={selectIds}
+        setSelectIds={setSelectIds}
+        loading={loading}
+        pagination={pagination}
+      />
     </BasePage>
   )
 }

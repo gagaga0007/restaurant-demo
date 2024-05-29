@@ -1,4 +1,4 @@
-import { Table, TableColumnsType, Tag } from 'antd'
+import { Table, TableColumnsType, TablePaginationConfig, Tag } from 'antd'
 import { OrderProps } from '@/model/interface/order.ts'
 import { useMemo } from 'react'
 import { BaseStatusEnum, BaseTableProps } from '@/model/interface/base.ts'
@@ -8,6 +8,7 @@ import type { TableRowSelection } from 'antd/es/table/interface'
 interface OrderTableProps extends BaseTableProps<OrderProps> {
   selectIds: string[]
   setSelectIds: (value: string[]) => void
+  pagination: TablePaginationConfig
 }
 
 const columns: TableColumnsType<OrderProps> = [
@@ -28,7 +29,7 @@ const columns: TableColumnsType<OrderProps> = [
   },
 ]
 
-export const OrderTable = ({ data, selectIds, setSelectIds, loading }: OrderTableProps) => {
+export const OrderTable = ({ data, selectIds, setSelectIds, loading, pagination }: OrderTableProps) => {
   const rowSelection: TableRowSelection<OrderProps> = useMemo(() => {
     return {
       selectedRowKeys: selectIds,
@@ -46,6 +47,7 @@ export const OrderTable = ({ data, selectIds, setSelectIds, loading }: OrderTabl
       dataSource={data}
       rowSelection={rowSelection}
       loading={loading}
+      pagination={pagination}
     />
   )
 }
