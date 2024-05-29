@@ -169,7 +169,7 @@ const LayoutSelectPage = () => {
         const formData = { jsonData: json, imageData: backgroundImage, id: Config.LAYOUT_ID }
         const res = await editLayout(formData)
         if (res.code === 200) {
-          message.success('保存しました')
+          message.success('予約しました')
         }
       }
     } catch (e) {
@@ -359,7 +359,7 @@ const LayoutSelectPage = () => {
                 }
               `}
             >
-              保存
+              予約
             </Button>
           </Col>
         </Row>

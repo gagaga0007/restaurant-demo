@@ -100,15 +100,15 @@ export const CustomerLogin = () => {
         <Input placeholder="ご宿泊様お名前を入力してください" />
       </Form.Item>
       {/* TODO: Translate */}
-      <Form.Item rules={[{ required: true, message: '请输入房间号' }]} name="deptName" label="房间号">
-        <Select showSearch placeholder="请选择房间号" filterOption={filterOption}>
+      <Form.Item rules={[{ required: true, message: '部屋番号を選択してください' }]} name="deptName" label="部屋番号">
+        <Select showSearch placeholder="部屋番号を選択してください" filterOption={filterOption}>
           {rooms.map((v) => (
             <Select.Option key={v.deptId} value={v.deptName}>
               {v.deptName}
             </Select.Option>
           ))}
         </Select>
-        {/*<AutoComplete options={options} onSearch={getOptions} placeholder="请选择房间号" />*/}
+        {/*<AutoComplete options={options} onSearch={getOptions} placeholder="部屋番号を選択してください" />*/}
       </Form.Item>
       <Form.Item
         rules={[{ required: true, message: 'お食事予約人数を入力してください' }]}

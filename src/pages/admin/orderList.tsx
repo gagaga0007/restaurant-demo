@@ -47,7 +47,7 @@ const OrderListPage = () => {
       await fetchData(page)
       onDeselectAll()
       // TODO: Translate
-      message.success('修改成功')
+      message.success('入場済しました')
     } catch (e) {
       console.error(e)
     } finally {
@@ -76,8 +76,7 @@ const OrderListPage = () => {
             選択をキャンセルする
           </Button>
           <Button type="primary" onClick={onEntrance} disabled={selectIds.length === 0}>
-            {/* TODO: Translate */}
-            入场
+            入場
           </Button>
         </Space>
       }

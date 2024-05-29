@@ -19,12 +19,12 @@ const columns: TableColumnsType<OrderProps> = [
   { title: '記入時間', dataIndex: 'createTime', render: (value) => getDate(value, { withTime: true }) },
   {
     // TODO: Translate
-    title: '状态',
+    title: '状態',
     dataIndex: 'deleteFlg',
     render: (value) => {
       const flag = value === BaseStatusEnum.YES
       // TODO: Translate
-      return <Tag color={flag ? 'green' : 'red'}>{flag ? '已入场' : '未入场'}</Tag>
+      return <Tag color={flag ? 'green' : 'red'}>{flag ? '入場済' : '未入場'}</Tag>
     },
   },
 ]

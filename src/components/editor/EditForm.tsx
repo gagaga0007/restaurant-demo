@@ -109,7 +109,7 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
       }
 
       // TODO: Translate
-      await message.success('修改成功')
+      await message.success('変更に成功しました')
     } catch (e) {
       console.error(e)
     }
