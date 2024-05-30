@@ -125,7 +125,6 @@ const LayoutSelectPage = () => {
 
   const onSaveData = async () => {
     if (isFinish) {
-      // TODO: translate
       message.error('予約が成功したので、再度予約情報を提出する必要はありません')
       return
     }
