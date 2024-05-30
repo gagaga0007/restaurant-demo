@@ -63,26 +63,6 @@ const LayoutEditPage = () => {
 
   const [loading, setLoading] = useState(false)
 
-  // 改变背景图
-  // const setBgImg = (base64: string) => {
-  //   // 盒子宽度
-  //   const innerWidth = innerElement.current!.getBoundingClientRect().width
-  //   // 通过 Image 对象获取图片宽高，并设置 canvas 宽高
-  //   const image = new Image()
-  //   image.src = base64
-  //   image.onload = () => {
-  //     const height = (image.height * innerWidth) / image.width
-  //     innerElement.current!.style.height = height + 'px'
-  //     canvasObj.current!.setHeight(height)
-  //
-  //     const borderWidth = 2
-  //     canvasElement.current!.height = height - borderWidth
-  //     canvasElement.current!.width = innerWidth - borderWidth
-  //
-  //     setBackgroundImage(base64)
-  //   }
-  // }
-
   // 上传背景图触发
   const onBgImgFileChange = async (fileInfo?: UploadChangeParam) => {
     if (!fileInfo) {
@@ -309,8 +289,6 @@ const LayoutEditPage = () => {
         return
       }
 
-      // const data = localStorage.getItem(STORAGE_KEY)
-      // const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
       const data = res.data.jsonData
       const bgImage = res.data.imageData
       if (data) {
@@ -327,18 +305,6 @@ const LayoutEditPage = () => {
       setLoading(false)
     }
   }
-
-  // const onDeleteData = async () => {
-  //   const data = localStorage.getItem(STORAGE_KEY)
-  //   const bgImage = localStorage.getItem(STORAGE_BG_IMAGE_KEY)
-  //   if (!data && !bgImage) {
-  //     message.warning('現在ブラウザに保存されたデータはありません。クリアする必要はありません')
-  //   } else {
-  //     localStorage.removeItem(STORAGE_KEY)
-  //     localStorage.removeItem(STORAGE_BG_IMAGE_KEY)
-  //     message.success('クリアしました')
-  //   }
-  // }
 
   const renderDropdown = useCallback(
     (menu: React.ReactNode) => {
@@ -386,15 +352,6 @@ const LayoutEditPage = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      // 设置宽高
-      // const { width, height } = innerElement.current!.getBoundingClientRect()
-      // const canvasWidth = width - 2
-      // const canvasHeight = height - 2
-      // canvasElement.current!.width = canvasWidth
-      // canvasElement.current!.height = canvasHeight
-      // canvasElement.current!.style.width = canvasWidth + 'px'
-      // canvasElement.current!.style.height = canvasHeight + 'px'
-
       // 初始化
       const fabricCanvas = new fabric.Canvas(canvasElement.current)
 
@@ -517,19 +474,6 @@ const LayoutEditPage = () => {
                   インポート
                 </Button>
               </Popconfirm>
-              {/*<Popconfirm*/}
-              {/*  title="ブラウザに保存されたデータをクリア"*/}
-              {/*  description="ブラウザに保存されたデータをクリアしてもよろしいですか？この操作を実行すると元に戻せなくなります。"*/}
-              {/*  placement="bottomLeft"*/}
-              {/*  okText="確定"*/}
-              {/*  cancelText="キャンセル"*/}
-              {/*  icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />}*/}
-              {/*  onConfirm={onDeleteData}*/}
-              {/*>*/}
-              {/*  <Button icon={<DeleteOutlined />} type="primary" ghost danger>*/}
-              {/*    キャッシュクリア*/}
-              {/*  </Button>*/}
-              {/*</Popconfirm>*/}
             </Space>
           </Col>
         </Row>
