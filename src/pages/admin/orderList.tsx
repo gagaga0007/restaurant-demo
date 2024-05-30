@@ -65,7 +65,7 @@ const OrderListPage = () => {
       const res = await deleteOrder(id)
       if (res.code === 200) {
         // TODO: translate
-        message.success('删除成功')
+        message.success('削除しました')
       }
 
       await fetchData(page)

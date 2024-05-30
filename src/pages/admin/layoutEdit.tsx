@@ -399,7 +399,7 @@ const LayoutEditPage = () => {
                 柱
               </Button>
               <Button icon={<PlusOutlined />} type="primary" ghost onClick={addLineWall} disabled={loading}>
-                {/* TODO: Translate */}线
+                {/* TODO: Translate */}ライン
               </Button>
               <Dropdown
                 menu={{ items: customMenu, onClick: (e) => addCustom(e.key) }}

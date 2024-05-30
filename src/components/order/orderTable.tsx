@@ -21,7 +21,7 @@ export const OrderTable = ({ data, selectIds, setSelectIds, loading, onDelete }:
       { title: '部屋番号', dataIndex: 'deptName' },
       { title: '人数', dataIndex: 'numberOfDiners' },
       // TODO: translate
-      { title: '预约座位', dataIndex: 'seatList', width: 220 },
+      { title: '座席を予約', dataIndex: 'seatList', width: 220 },
       { title: '食事時間', dataIndex: 'mealTime', render: (value) => getDate(value, { withTime: true }) },
       { title: '記入時間', dataIndex: 'createTime', render: (value) => getDate(dayjs.utc(value), { withTime: true }) },
       {
@@ -38,8 +38,8 @@ export const OrderTable = ({ data, selectIds, setSelectIds, loading, onDelete }:
         render: (value, record) => (
           <Popconfirm
             // TODO: translate
-            title="删除"
-            description="删除后不可恢复，确定删除？"
+            title="削除"
+            description="削除後、復元できません。削除しますか?"
             placement="left"
             okText="確定"
             cancelText="キャンセル"
@@ -47,7 +47,7 @@ export const OrderTable = ({ data, selectIds, setSelectIds, loading, onDelete }:
             onConfirm={() => onDelete(record.id)}
           >
             <Button ghost danger>
-              删除
+              削除
             </Button>
           </Popconfirm>
         ),
