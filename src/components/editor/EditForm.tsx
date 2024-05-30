@@ -89,7 +89,7 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
         const canvas = tableItem.canvas
         const textObjects = canvas.getObjects('text')
         // 找出绑定到当前桌子的文字对象
-        const textItem = textObjects.find((v) => v.data?.[PARENT_ID_KEY] === tableItem.data?.id)
+        const textItem = textObjects.find((v) => v.data?.[PARENT_ID_KEY] === tableItem.data?.[ID_KEY])
         if (textItem) {
           // 如果有，修改文字内容
           // @ts-ignore
@@ -246,7 +246,7 @@ export const EditForm = ({ selectedObjects, setSelectedObjects, onDeleteObjects 
       // 如果是桌子，一并删除他们的文字
       if (v.data?.[TYPE_KEY] === TABLE_TYPE_VALUE) {
         // 文字对象
-        const text = textObjects.find((item) => item.data?.[PARENT_ID_KEY] === v.data?.id)
+        const text = textObjects.find((item) => item.data?.[PARENT_ID_KEY] === v.data?.[ID_KEY])
         // 如果文字对象已经被选择了就不删除（当前文字是否在 selectedObjects 中，通过 parent_id 判断）
         // 没有则删除
         if (

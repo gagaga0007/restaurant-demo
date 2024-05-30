@@ -293,7 +293,7 @@ const LayoutEditPage = () => {
         }
       }
     } catch (e) {
-      console.error(e)
+      message.error(e.msg)
     } finally {
       setLoading(false)
     }

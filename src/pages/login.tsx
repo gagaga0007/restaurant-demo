@@ -10,11 +10,12 @@ import { useAuth } from '@/store/authContext.tsx'
 import { Config } from '@/core/config.ts'
 
 const LoginPage = () => {
-  const { setUserName, setRoomNumber } = useAuth()
+  const { setUserName, setUserId, setRoomNumber } = useAuth()
   const [isAdmin, setIsAdmin] = useState(false)
 
   const onChangeUserType = () => {
     setUserName(undefined)
+    setUserId(undefined)
     setRoomNumber(undefined)
     setIsAdmin((value) => !value)
   }

@@ -4,7 +4,7 @@ export interface KeyPairProps {
 }
 
 export interface BaseProps {
-  id: string
+  id: number
   createTime: string
   createBy: string
 }
@@ -18,6 +18,7 @@ export interface BaseApiProps<T> {
 export interface BaseApiResultProps {
   msg: string
   code: number
+  data?: any
 }
 
 export interface BasePageProps<T> {
