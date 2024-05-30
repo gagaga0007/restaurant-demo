@@ -9,16 +9,19 @@ import {
   CHAIR_TYPE_VALUE,
   chairStatusOptions,
   defaultFillAlpha,
+  ID_KEY,
+  NAME_KEY,
   STATUS_KEY,
-  TABLE_TYPE_VALUE,
 } from '@/model/options/editor.tsx'
 import { App, Button, Col, Row, Tag, Typography } from 'antd'
 import { SaveOutlined } from '@ant-design/icons'
 import { useMount, useUnmount } from 'ahooks'
-import { editLayout, getLayout } from '@/model/api/layout.ts'
+import { getLayout } from '@/model/api/layout.ts'
 import { Config } from '@/core/config.ts'
 import { useLocation } from 'react-router-dom'
 import { ChairStatusEnum } from '@/model/interface/editor.ts'
+import { useAuth } from '@/store/authContext.tsx'
+import { editOrder, getOrderSeatsByDate } from '@/model/api/order.ts'
 
 interface SelectProps {
   id: string
@@ -28,6 +31,7 @@ interface SelectProps {
 const LayoutSelectPage = () => {
   const location = useLocation()
   const { message } = App.useApp()
+  const { userId } = useAuth()
 
   const innerElement = useRef<HTMLDivElement>(null)
   const canvasElement = useRef<HTMLCanvasElement>(null)
@@ -35,6 +39,7 @@ const LayoutSelectPage = () => {
   const canvasObj = useRef<fabric.Canvas | null>(null)
   const [selectedObjects, setSelectedObjects] = useState<SelectProps[]>([])
   const selectIds = useRef<string[]>([])
+  const [isFinish, setIsFinish] = useState(false)
 
   const [backgroundImage, setBackgroundImage] = useState('')
   const [numberOfDiners, setNumberOfDiners] = useState(0)
@@ -45,28 +50,8 @@ const LayoutSelectPage = () => {
   const touchPageXRef = useRef(0) // 移动端鼠标移动的 X 坐标
   const touchPageYRef = useRef(0) // 移动端鼠标移动的 Y 坐标
 
-  // 改变背景图
-  // const setBgImg = (base64: string) => {
-  //   // 盒子宽度
-  //   const innerWidth = innerElement.current!.getBoundingClientRect().width
-  //   // 通过 Image 对象获取图片宽高，并设置 canvas 宽高
-  //   const image = new Image()
-  //   image.src = base64
-  //   image.onload = () => {
-  //     const height = (image.height * innerWidth) / image.width
-  //     innerElement.current!.style.height = height + 'px'
-  //     canvasObj.current!.setHeight(height)
-  //
-  //     const borderWidth = 2
-  //     canvasElement.current!.height = height - borderWidth
-  //     canvasElement.current!.width = innerWidth - borderWidth
-  //
-  //     setBackgroundImage(base64)
-  //   }
-  // }
-
   // 修改椅子状态
-  const changeChairStatus = useCallback((status: ChairStatusEnum, target: fabric.Object) => {
+  const changeChairStatus = useCallback((status: ChairStatusEnum, target: fabric.Object, render = true) => {
     const data = target.data
 
     const color = chairStatusOptions.find((v) => v.value === status)?.color
@@ -82,21 +67,23 @@ const LayoutSelectPage = () => {
       target.set('stroke', `rgb(${rgbList[0]}, ${rgbList[1]}, ${rgbList[2]})`)
       target.set('fill', `rgba(${rgbList[0]}, ${rgbList[1]}, ${rgbList[2]}, ${defaultFillAlpha})`)
     }
-    target.canvas?.renderAll()
+    if (render) {
+      target.canvas?.renderAll()
+    }
   }, [])
 
   // 取消选择
   const onRemoveSelect = useCallback(
     (id: string) => {
       const objects = canvasObj.current?.getObjects()
-      const target = objects.find((v) => v.data?.id === id)
+      const target = objects.find((v) => v.data?.[ID_KEY] === id)
 
       const data = target.data
       if (!data) return
 
       // 移除选择
-      setSelectedObjects((list) => list.filter((v) => v.id !== data.id))
-      selectIds.current = selectIds.current.filter((v) => v !== data.id)
+      setSelectedObjects((list) => list.filter((v) => v.id !== data[ID_KEY]))
+      selectIds.current = selectIds.current.filter((v) => v !== data[ID_KEY])
       // 修改状态
       changeChairStatus(ChairStatusEnum.DEFAULT, target)
     },
@@ -109,8 +96,8 @@ const LayoutSelectPage = () => {
       if (!data || data[STATUS_KEY] === ChairStatusEnum.HAS_ORDER) return
 
       // 添加到已选择
-      setSelectedObjects((list) => [...list, { id: data.id, name: data.name }])
-      selectIds.current.push(data.id)
+      setSelectedObjects((list) => [...list, { id: data[ID_KEY], name: data[NAME_KEY] }])
+      selectIds.current.push(data[ID_KEY])
       // 修改状态
       changeChairStatus(ChairStatusEnum.HAS_ORDER, target)
     },
@@ -125,9 +112,9 @@ const LayoutSelectPage = () => {
       // 只能选择椅子
       if (data?.type !== CHAIR_TYPE_VALUE) return
 
-      if (selectIds.current.includes(data.id)) {
+      if (selectIds.current.includes(data[ID_KEY])) {
         // 移除
-        onRemoveSelect(data.id)
+        onRemoveSelect(data[ID_KEY])
       } else {
         // 添加
         onAddSelect(event.target)
@@ -137,6 +124,12 @@ const LayoutSelectPage = () => {
   )
 
   const onSaveData = async () => {
+    if (isFinish) {
+      // TODO: translate
+      message.error('您已预约成功，无需再次提交预约信息。')
+      return
+    }
+
     if (selectedObjects.length !== numberOfDiners) {
       message.error(
         `予約人数は ${numberOfDiners} 人，現在選択の人は ${selectedObjects.length} 人です，もう一度選択ください。`,
@@ -144,36 +137,23 @@ const LayoutSelectPage = () => {
       return
     }
 
-    console.log(selectedObjects)
-
-    // TODO: 目前是将当前的画布当做编辑保存
     try {
       setLoading(true)
 
-      // 默认只包含必要的字段。接受一个参数，包含输出中额外包括的属性名。此处将 data 存入
-      const objectsJson = canvasObj.current.toJSON(['data'])
-      objectsJson.objects.forEach((e) => {
-        // 将其中 type 为 click 的元素处理成正确的元素 TODO: 暂时不知触发条件，偶尔触发
-        if (e.type === 'click') {
-          if (e.data?.type === CHAIR_TYPE_VALUE) {
-            e.type = 'circle'
-          } else if (e.data?.type === TABLE_TYPE_VALUE) {
-            e.type = 'rect'
-          }
-        }
-      })
-      if (objectsJson.objects.length === 0 && !backgroundImage) {
-        message.warning('まだ何も追加されていません。何かを追加した後で保存してください')
-      } else {
-        const json = JSON.stringify(objectsJson)
-        const formData = { jsonData: json, imageData: backgroundImage, id: Config.LAYOUT_ID }
-        const res = await editLayout(formData)
-        if (res.code === 200) {
-          message.success('予約しました')
-        }
+      const formData = {
+        id: userId,
+        seatList: selectedObjects.map((v) => v.name).join(','),
+      }
+
+      const res = await editOrder(formData)
+      if (res.code === 200) {
+        message.success('予約しました')
+        setIsFinish(true)
+        setSelectedObjects([])
+        selectIds.current = []
       }
     } catch (e) {
-      console.error(e)
+      message.error(e.msg ?? e.message)
     } finally {
       setLoading(false)
     }
@@ -183,34 +163,47 @@ const LayoutSelectPage = () => {
     try {
       setLoading(true)
 
+      // 获取画布内容
       const res = await getLayout(Config.LAYOUT_ID)
       if (!res.data) {
         message.warning('現在ブラウザにはインポートできるデータがありません')
         return
       }
 
+      // 获取当前时间的座位 mealTime
+      const mealTime = location?.state?.mealTime
+      const seatRes = await getOrderSeatsByDate(mealTime)
+
+      const seatList = seatRes.code === 200 ? seatRes.msg?.split(',') ?? [] : [] // TODO: res
+
       const data = res.data.jsonData
       const bgImage = res.data.imageData
       if (data) {
         const objectsJson = JSON.parse(data)
-        // 使每个元素都不可选择（只读状态）
-        objectsJson.objects.forEach((v: fabric.Object) => {
-          v.selectable = false
-        })
         // 渲染到画布
-        canvasObj.current?.loadFromJSON(objectsJson, canvasObj.current.renderAll.bind(canvasObj.current))
+        canvasObj.current?.loadFromJSON(
+          objectsJson,
+          canvasObj.current.renderAll.bind(canvasObj.current),
+          (_, obj: fabric.Object) => {
+            // 使每个元素都不可选择（只读状态）
+            obj.selectable = false
+
+            // 判断当前渲染的对象是否是椅子且是否是已被预订的座位
+            if (obj.data && seatList.includes(obj.data[NAME_KEY])) {
+              changeChairStatus(ChairStatusEnum.HAS_ORDER, obj, false)
+            }
+          },
+        )
       }
       if (bgImage) {
-        // setBgImg(bgImage)
         setBackgroundImage(bgImage)
       }
     } catch (e) {
-      console.error(e)
-      message.error('インポート時エラーが発生しました')
+      message.error(e.msg ?? e.message)
     } finally {
       setLoading(false)
     }
-  }, [message])
+  }, [changeChairStatus, location?.state?.mealTime, message])
 
   // 选择座位数与预定座位数是否相符
   const isSelectWarning = useMemo(() => {
@@ -278,15 +271,6 @@ const LayoutSelectPage = () => {
   }
 
   useMount(() => {
-    // 设置宽高
-    // const { width, height } = innerElement.current!.getBoundingClientRect()
-    // const canvasWidth = width - 2
-    // const canvasHeight = height - 2
-    // canvasElement.current!.width = canvasWidth
-    // canvasElement.current!.height = canvasHeight
-    // canvasElement.current!.style.width = canvasWidth + 'px'
-    // canvasElement.current!.style.height = canvasHeight + 'px'
-
     // 初始化，使画布不可选择，且鼠标指针改为 pointer
     const fabricCanvas = new fabric.Canvas(canvasElement.current, { selection: false, hoverCursor: 'pointer' })
     // 监听鼠标事件（移动端触摸同样触发）

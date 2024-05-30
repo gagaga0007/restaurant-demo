@@ -15,7 +15,7 @@ import { DisabledTimes } from 'rc-picker/lib/interface'
 export const CustomerLogin = () => {
   const navigate = useNavigate()
   const { message } = App.useApp()
-  const { setUserName, setRoomNumber, setUserType } = useAuth()
+  const { setUserName, setUserId, setRoomNumber, setUserType } = useAuth()
   const [loading, setLoading] = useState(false)
   const [rooms, setRooms] = useState<RoomProps[]>([])
   // const [options, setOptions] = useState<{ label: string; value: string }[]>([])
@@ -40,7 +40,7 @@ export const CustomerLogin = () => {
       setRooms(list)
       // setOptions(list.map((v) => ({ label: v.deptName, value: v.deptName })))
     } catch (e) {
-      console.error(e)
+      message.error(e.msg ?? e.message)
     } finally {
       setLoading(false)
     }
@@ -50,20 +50,22 @@ export const CustomerLogin = () => {
     try {
       setLoading(true)
 
-      const formData: OrderEditProps = {
-        ...data,
-        mealTime: dayjs(data.mealTime).toISOString(),
-      }
-      await createOrder(formData)
+      const mealTime = dayjs(data.mealTime).utc(true).format()
+      const formData: OrderEditProps = { ...data, mealTime }
 
-      setUserName(data.userName)
-      setRoomNumber(data.deptName)
-      setUserType(UserTypeEnum.CUSTOMER)
-      navigate(`/${routes.LAYOUT_SELECT}`, {
-        state: { numberOfDiners: data.numberOfDiners, date: dayjs(data.mealTime).format('YYYY-MM-DD') },
-      })
+      const res = await createOrder(formData)
+      setUserId(res.data)
+
+      if (res.code === 200) {
+        setUserName(data.userName)
+        setRoomNumber(data.deptName)
+        setUserType(UserTypeEnum.CUSTOMER)
+        navigate(`/${routes.LAYOUT_SELECT}`, {
+          state: { numberOfDiners: data.numberOfDiners, mealTime: mealTime },
+        })
+      }
     } catch (e) {
-      message.error(e.message)
+      message.error(e.msg ?? e.message)
     } finally {
       setLoading(false)
     }

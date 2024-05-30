@@ -6,7 +6,7 @@ import {
   defaultTriangleOptions,
 } from '../model/options/editor.tsx'
 import { fabric } from 'fabric'
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 
 /**
  * 将文件转为 Base64
@@ -44,7 +44,7 @@ export const getRandomId = (length = 12) => {
  * @param withTime 是否带时间
  * @param format 格式
  */
-export const getDate = (value: string, { withTime, format }: { withTime?: boolean; format?: string } = {}) => {
+export const getDate = (value: string | Dayjs, { withTime, format }: { withTime?: boolean; format?: string } = {}) => {
   const defaultFormat = format || (withTime ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD')
   return dayjs(value).format(defaultFormat)
 }

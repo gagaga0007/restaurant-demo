@@ -108,8 +108,6 @@ const LayoutEditPage = () => {
     }
     const text = addText(canvasObj.current, '', { options: textOptions, disableActiveOnCreate: true })
     text.set('top', text.top + rect.height / 2 - text.height / 2)
-    // // 设置到最下层，防止覆盖 TODO: 设置颜色会被盖住
-    // text.sendToBack()
 
     if (!disableActiveOnCreate) {
       // 选中新创建的项
@@ -273,7 +271,7 @@ const LayoutEditPage = () => {
         }
       }
     } catch (e) {
-      message.error(e.msg)
+      message.error(e.msg ?? e.message)
     } finally {
       setLoading(false)
     }

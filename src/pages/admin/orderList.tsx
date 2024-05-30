@@ -4,7 +4,8 @@ import { useMount } from 'ahooks'
 import { OrderProps } from '@/model/interface/order.ts'
 import { App, Button, Space, Typography } from 'antd'
 import { OrderTable } from '@/components/order/orderTable.tsx'
-import { changeOrderStatus, getOrderList } from '@/model/api/order.ts'
+import { changeOrderStatus, deleteOrder, getOrderList } from '@/model/api/order.ts'
+import { BaseStatusEnum } from '@/model/interface/base.ts'
 
 // const pageSize = 10
 
@@ -14,7 +15,7 @@ const OrderListPage = () => {
   const [page, setPage] = useState(1)
   // const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
-  const [selectIds, setSelectIds] = useState<string[]>([])
+  const [selectIds, setSelectIds] = useState<number[]>([])
 
   const fetchData = useCallback(
     async (pageNumber: number) => {
@@ -25,7 +26,7 @@ const OrderListPage = () => {
         // setTotal(res.total)
         setPage(pageNumber)
       } catch (e) {
-        message.error(e.message)
+        message.error(e.msg ?? e.message)
       } finally {
         setLoading(false)
       }
@@ -42,13 +43,35 @@ const OrderListPage = () => {
       setLoading(true)
 
       const ids = selectIds.join(',')
-      await changeOrderStatus(ids)
+      // TODO: 改接口
+      const res = await changeOrderStatus(ids, BaseStatusEnum.YES)
+      if (res.code === 200) {
+        message.success('入場済しました')
+      }
+
+      await fetchData(1)
+      onDeselectAll()
+    } catch (e) {
+      message.error(e.msg ?? e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const onDelete = async (id: number) => {
+    try {
+      setLoading(true)
+
+      const res = await deleteOrder(id)
+      if (res.code === 200) {
+        // TODO: translate
+        message.success('删除成功')
+      }
 
       await fetchData(page)
       onDeselectAll()
-      message.success('入場済しました')
     } catch (e) {
-      console.error(e)
+      message.error(e.msg ?? e.message)
     } finally {
       setLoading(false)
     }
@@ -86,6 +109,7 @@ const OrderListPage = () => {
         setSelectIds={setSelectIds}
         loading={loading}
         // pagination={pagination}
+        onDelete={onDelete}
       />
     </BasePage>
   )
