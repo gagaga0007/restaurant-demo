@@ -43,8 +43,7 @@ const OrderListPage = () => {
       setLoading(true)
 
       const ids = selectIds.join(',')
-      // TODO: 改接口
-      const res = await changeOrderStatus(ids, BaseStatusEnum.YES)
+      const res = await changeOrderStatus(ids)
       if (res.code === 200) {
         message.success('入場済しました')
       }

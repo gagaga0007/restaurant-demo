@@ -39,7 +39,8 @@ const LayoutSelectPage = () => {
   const canvasObj = useRef<fabric.Canvas | null>(null)
   const [selectedObjects, setSelectedObjects] = useState<SelectProps[]>([])
   const selectIds = useRef<string[]>([])
-  const [isFinish, setIsFinish] = useState(false)
+  const [isFinish, setIsFinish] = useState(false) // 预约成功后设置为 true，给 tag 用
+  const isFinishRef = useRef(false) // 预约成功后设置为 true，给其他功能用
 
   const [backgroundImage, setBackgroundImage] = useState('')
   const [numberOfDiners, setNumberOfDiners] = useState(0)
@@ -75,6 +76,8 @@ const LayoutSelectPage = () => {
   // 取消选择
   const onRemoveSelect = useCallback(
     (id: string) => {
+      if (isFinishRef.current) return
+
       const objects = canvasObj.current?.getObjects()
       const target = objects.find((v) => v.data?.[ID_KEY] === id)
 
@@ -107,7 +110,7 @@ const LayoutSelectPage = () => {
   // 点击触发
   const onClickTarget = useCallback(
     (event: fabric.IEvent<MouseEvent>) => {
-      if (!event.target) return
+      if (!event.target || isFinishRef.current) return
       const data = event.target.data
       // 只能选择椅子
       if (data?.type !== CHAIR_TYPE_VALUE) return
@@ -124,7 +127,7 @@ const LayoutSelectPage = () => {
   )
 
   const onSaveData = async () => {
-    if (isFinish) {
+    if (isFinishRef.current) {
       message.error('予約が成功したので、再度予約情報を提出する必要はありません')
       return
     }
@@ -148,8 +151,7 @@ const LayoutSelectPage = () => {
       if (res.code === 200) {
         message.success('予約しました')
         setIsFinish(true)
-        setSelectedObjects([])
-        selectIds.current = []
+        isFinishRef.current = true
       }
     } catch (e) {
       message.error(e.msg ?? e.message)
@@ -325,7 +327,7 @@ const LayoutSelectPage = () => {
               ：
             </Typography.Text>
             {selectedObjects.map((v) => (
-              <Tag key={v.id} closable onClose={() => onRemoveSelect(v.id)}>
+              <Tag key={v.id} closable={!isFinish} onClose={() => onRemoveSelect(v.id)}>
                 {v.name || v.id}
               </Tag>
             ))}
