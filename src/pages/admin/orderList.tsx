@@ -64,7 +64,6 @@ const OrderListPage = () => {
 
       const res = await deleteOrder(id)
       if (res.code === 200) {
-        // TODO: translate
         message.success('削除しました')
       }
 

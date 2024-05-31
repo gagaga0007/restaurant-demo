@@ -20,7 +20,6 @@ export const OrderTable = ({ data, selectIds, setSelectIds, loading, onDelete }:
       { title: '名前', dataIndex: 'userName' },
       { title: '部屋番号', dataIndex: 'deptName' },
       { title: '人数', dataIndex: 'numberOfDiners' },
-      // TODO: translate
       { title: '座席を予約', dataIndex: 'seatList', width: 220 },
       { title: '食事時間', dataIndex: 'mealTime', render: (value) => getDate(value, { withTime: true }) },
       { title: '記入時間', dataIndex: 'createTime', render: (value) => getDate(dayjs.utc(value), { withTime: true }) },
@@ -33,11 +32,9 @@ export const OrderTable = ({ data, selectIds, setSelectIds, loading, onDelete }:
         },
       },
       {
-        // TODO: translate
         title: '操作',
         render: (value, record) => (
           <Popconfirm
-            // TODO: translate
             title="削除"
             description="削除後、復元できません。削除しますか?"
             placement="left"

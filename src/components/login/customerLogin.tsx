@@ -5,7 +5,7 @@ import { UserTypeEnum } from '@/model/interface/base.ts'
 import { useNavigate } from 'react-router-dom'
 import { routes } from '@/core/routes.ts'
 import { OrderEditProps } from '@/model/interface/order.ts'
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 import { createOrder } from '@/model/api/order.ts'
 import { RoomProps } from '@/model/interface/room.ts'
 import { getRooms } from '@/model/api/room.ts'
@@ -69,6 +69,10 @@ export const CustomerLogin = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const disabledDate = (current: Dayjs) => {
+    return current && current < dayjs().subtract(1, 'day')
   }
 
   const disabledTime = () => {
@@ -135,6 +139,7 @@ export const CustomerLogin = () => {
         <DatePicker
           showTime={{ format: 'HH:mm', minuteStep: 10, hideDisabledOptions: true }}
           format="YYYY-MM-DD HH:mm"
+          disabledDate={disabledDate}
           disabledTime={disabledTime}
           showNow={false}
           changeOnScroll

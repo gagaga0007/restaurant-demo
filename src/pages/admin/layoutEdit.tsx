@@ -399,7 +399,7 @@ const LayoutEditPage = () => {
                 柱
               </Button>
               <Button icon={<PlusOutlined />} type="primary" ghost onClick={addLineWall} disabled={loading}>
-                {/* TODO: Translate */}ライン
+                ライン
               </Button>
               <Dropdown
                 menu={{ items: customMenu, onClick: (e) => addCustom(e.key) }}
@@ -408,8 +408,7 @@ const LayoutEditPage = () => {
               >
                 <Button icon={<AppstoreAddOutlined />} type="primary" ghost disabled={loading}>
                   <Space>
-                    {/* TODO: Translate */}
-                    更多
+                    その他
                     <DownOutlined />
                   </Space>
                 </Button>
