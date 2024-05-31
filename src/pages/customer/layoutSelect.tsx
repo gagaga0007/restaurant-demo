@@ -175,7 +175,7 @@ const LayoutSelectPage = () => {
       const mealTime = location?.state?.mealTime
       const seatRes = await getOrderSeatsByDate(mealTime)
 
-      const seatList = seatRes.code === 200 ? seatRes.msg?.split(',') ?? [] : [] // TODO: res
+      const seatList = seatRes.code === 200 ? seatRes.msg?.split(',') ?? [] : []
 
       const data = res.data.jsonData
       const bgImage = res.data.imageData
