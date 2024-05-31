@@ -1,6 +1,6 @@
 import { OrderEditProps, OrderProps, SearchOrderProps } from '@/model/interface/order.ts'
 import { api } from '@/model/api/index.ts'
-import { BaseApiResultProps, BasePageProps } from '@/model/interface/base.ts'
+import { BaseApiResultProps, BasePageProps, BaseStatusEnum } from '@/model/interface/base.ts'
 
 export const createOrder = async (data: OrderEditProps) => {
   const res = await api.post<BaseApiResultProps>('/hotel/ordering/add', data)
