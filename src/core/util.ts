@@ -4,7 +4,7 @@ import {
   defaultRectOptions,
   defaultSemiCircleOptions,
   defaultTriangleOptions,
-} from '../model/options/editor.tsx'
+} from '@/model/options/editor.tsx'
 import { fabric } from 'fabric'
 import dayjs, { Dayjs } from 'dayjs'
 

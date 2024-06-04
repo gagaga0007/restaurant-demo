@@ -27,7 +27,7 @@ import {
   TABLE_TYPE_VALUE,
   TABLE_TEXT_TYPE_VALUE,
   TYPE_KEY,
-} from '../../model/options/editor.tsx'
+} from '@/model/options/editor.tsx'
 import { getRandomId } from '@/core/util.ts'
 
 interface Props {

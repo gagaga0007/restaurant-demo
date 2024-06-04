@@ -1,5 +1,5 @@
 import { fabric } from 'fabric'
-import { ChairStatusEnum, CustomMenuEnum, TemplateEnum } from '../interface/editor.ts'
+import { ChairStatusEnum, CustomMenuEnum, TemplateEnum } from '@/model/interface/editor.ts'
 import { PlusOutlined } from '@ant-design/icons'
 import { KeyPairProps } from '@/model/interface/base.ts'
 
