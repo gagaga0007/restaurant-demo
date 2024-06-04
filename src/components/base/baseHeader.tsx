@@ -3,12 +3,13 @@ import { useAuth } from '@/store/authContext.tsx'
 import { LogoutOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { routes } from '@/core/routes.ts'
+import { UserTypeEnum } from '@/model/interface/base.ts'
 
 const { Header } = Layout
 
 export const BaseHeader = () => {
   const navigate = useNavigate()
-  const { userName, onLogout } = useAuth()
+  const { userName, onLogout, userType } = useAuth()
 
   const logout = () => {
     onLogout()
@@ -28,7 +29,10 @@ export const BaseHeader = () => {
         LOGO
       </Typography.Text>
       <Space size={16}>
-        <Typography.Text style={{ color: '#ffffff' }}>ようこそ，{userName}様</Typography.Text>
+        <Typography.Text style={{ color: '#ffffff' }}>
+          ようこそ，{userName}
+          {userType === UserTypeEnum.CUSTOMER ? ' 様' : ''}
+        </Typography.Text>
         <Tooltip placement="bottom" title="ログアウト">
           <Button type="primary" ghost shape="circle" danger size="small" icon={<LogoutOutlined />} onClick={logout} />
         </Tooltip>

@@ -17,7 +17,7 @@ interface OrderTableProps extends BaseTableProps<OrderProps> {
 export const OrderTable = ({ data, selectIds, setSelectIds, loading, onDelete }: OrderTableProps) => {
   const columns: TableColumnsType<OrderProps> = useMemo(
     () => [
-      { title: '名前', dataIndex: 'userName' },
+      { title: '名前', dataIndex: 'userName', render: (value) => `${value} 様` },
       { title: '部屋番号', dataIndex: 'deptName' },
       { title: '人数', dataIndex: 'numberOfDiners' },
       { title: 'ご予約済席', dataIndex: 'seatList', width: 220 },
