@@ -28,7 +28,7 @@ export const BaseHeader = () => {
         LOGO
       </Typography.Text>
       <Space size={16}>
-        <Typography.Text style={{ color: '#ffffff' }}>ようこそ，{userName}</Typography.Text>
+        <Typography.Text style={{ color: '#ffffff' }}>ようこそ，{userName}様</Typography.Text>
         <Tooltip placement="bottom" title="ログアウト">
           <Button type="primary" ghost shape="circle" danger size="small" icon={<LogoutOutlined />} onClick={logout} />
         </Tooltip>

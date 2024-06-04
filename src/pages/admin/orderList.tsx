@@ -45,7 +45,7 @@ const OrderListPage = () => {
       const ids = selectIds.join(',')
       const res = await changeOrderStatus(ids)
       if (res.code === 200) {
-        message.success('入場済しました')
+        message.success('入場済みに設定しました')
       }
 
       await fetchData(1)
