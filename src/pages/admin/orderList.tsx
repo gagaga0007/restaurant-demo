@@ -5,7 +5,6 @@ import { OrderProps } from '@/model/interface/order.ts'
 import { App, Button, Space, Typography } from 'antd'
 import { OrderTable } from '@/components/order/orderTable.tsx'
 import { changeOrderStatus, deleteOrder, getOrderList } from '@/model/api/order.ts'
-import { BaseStatusEnum } from '@/model/interface/base.ts'
 
 // const pageSize = 10
 
