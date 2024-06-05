@@ -1,4 +1,3 @@
-/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import React, { PropsWithChildren, ReactNode } from 'react'
 import { Col, Row, Typography } from 'antd'

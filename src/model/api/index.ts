@@ -36,7 +36,9 @@ export const createClient = (config?: AxiosRequestConfig, withAuth?: boolean) =>
       console.error('@@@ Response Error @@@：', error)
       if (axios.isAxiosError(error)) {
         const response = error.response
-        return Promise.reject(new Error(response?.data?.message ?? 'サーバーに異常が発生しました。運用担当者に連絡してください'))
+        return Promise.reject(
+          new Error(response?.data?.message ?? 'サーバーに異常が発生しました。運用担当者に連絡してください'),
+        )
       } else {
         return Promise.reject(error)
       }

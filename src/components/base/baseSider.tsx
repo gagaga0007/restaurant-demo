@@ -1,4 +1,3 @@
-/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import { Layout, Menu, MenuProps } from 'antd'
 import { routes } from '@/core/routes.ts'

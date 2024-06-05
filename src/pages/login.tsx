@@ -1,4 +1,3 @@
-/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import { Button, Card, Divider, Space, Typography } from 'antd'
 import { useState } from 'react'

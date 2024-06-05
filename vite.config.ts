@@ -6,7 +6,14 @@ const SERVER = process.env.SERVER || 'http://127.0.0.1:8080/'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react({
+      babel: {
+        plugins: ['@emotion/babel-plugin'],
+      },
+      jsxImportSource: '@emotion/react',
+    }),
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

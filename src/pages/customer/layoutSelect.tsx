@@ -1,4 +1,3 @@
-/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import { BasePage } from '@/components/base/basePage.tsx'
 import { useCallback, useMemo, useRef, useState } from 'react'

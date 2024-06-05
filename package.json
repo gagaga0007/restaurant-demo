@@ -26,6 +26,7 @@
     "sort-by": "^1.2.0"
   },
   "devDependencies": {
+    "@emotion/babel-plugin": "^11.11.0",
     "@types/fabric": "^5.3.7",
     "@types/lodash": "^4.17.0",
     "@types/node": "^20.12.2",
