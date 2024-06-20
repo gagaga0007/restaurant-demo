@@ -39,4 +39,34 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    minify: true,
+    rollupOptions: {
+      output: {
+        manualChunks: (id: string) => {
+          if (id.includes('node_modules')) {
+            // if (id.includes('react')) {
+            //   return 'react'
+            // } else if (id.includes('antd')) {
+            //   return 'antd'
+            // } else if (id.includes('@ant-design')) {
+            //   return '@ant-design'
+            // } else if (id.includes('dayjs')) {
+            //   return 'dayjs'
+            // } else if (id.includes('babel')) {
+            //   return 'babel'
+            // } else if (id.includes('fabric')) {
+            //   return 'fabric'
+            // } else if (id.includes('axios')) {
+            //   return 'axios'
+            // } else {
+            return 'vendor'
+            // }
+          } else if (id.includes('src')) {
+            return 'app'
+          }
+        },
+      },
+    },
+  },
 })
